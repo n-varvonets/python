@@ -24,6 +24,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/Advanced/1.Работа с сетью/sockets/simple/extra/example5_option.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/Advanced/1.Работа с сетью/sockets/simple/tcp/example3_tcp_client.py">
           <value>
             <Attribute>
