@@ -10,6 +10,34 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/Advanced/1.Работа с сетью/sockets/simple/blocking/example4_nonblocking_server.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Advanced/1.Работа с сетью/sockets/simple/blocking/example5_nonblocking_server.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Advanced/1.Работа с сетью/sockets/simple/tcp/example3_tcp_client.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Advanced/1.Работа с сетью/sockets/simple/tcp/example3_tcp_server.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/Advanced/1.Работа с сетью/sockets/simple/udp/example1_udp_client.py">
           <value>
             <Attribute>
