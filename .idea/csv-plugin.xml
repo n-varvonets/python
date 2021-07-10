@@ -73,6 +73,34 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/Advanced/1.Работа с сетью/sockets/socket_server/extra/socket_tcp_server_threading.py">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Advanced/1.Работа с сетью/sockets/socket_server/tcp/socket_tcp_client.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Advanced/1.Работа с сетью/sockets/socket_server/tcp/socket_tcp_server.py">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Advanced/1.Работа с сетью/sockets/socket_server/udp/example1_udp_client.py">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
