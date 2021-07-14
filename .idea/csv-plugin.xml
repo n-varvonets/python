@@ -3,7 +3,42 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="/ OOP/ru_coursera_org/Дескрипторы.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/API + ITB/property_data.py">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Advanced/1.Работа с сетью/http/example1_http_via_sockets.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Advanced/1.Работа с сетью/http/example2_http_via_sockets_parsing.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Advanced/1.Работа с сетью/http/example3_urllib.py">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/Advanced/1.Работа с сетью/http/example4_requests.py">
           <value>
             <Attribute>
               <option name="separator" value=":" />
