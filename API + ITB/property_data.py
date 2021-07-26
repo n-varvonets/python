@@ -21,6 +21,14 @@ def get_properties_data():
 
 properties_data = get_properties_data()
 
+name = [i['reference'] for i in properties_data]
+n = 1
+d = {}
+for i in name:
+    d[n] = i
+    n += 1
+
+print(d)
 
 """Now that we have received complete data for the entire list of properties,
 we can choose from this list what we need.... For example get tittle of property"""
