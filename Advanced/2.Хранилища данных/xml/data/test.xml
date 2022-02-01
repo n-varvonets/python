@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+    <person pk="20">
+        <first_name>Dmitriy</first_name>
+        <last_name>Petrov</last_name>
+        <age>23</age>
+    </person>
+    <person pk="21">
+        <first_name>Alex</first_name>
+        <last_name>Varv</last_name>
+        <age>30</age>
+    </person>
+    <person pk="19">
+        <first_name>Ncik</first_name>
+        <last_name>Var</last_name>
+        <age>25</age>
+    </person>
+</data>
