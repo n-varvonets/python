@@ -1,0 +1,6 @@
+Project : build a class for LanguageDetection
+
+Find the language with has the most matches with a given sentence.
+If the language count is more than 30% of count of sentences words then we return this languages otherwise none.
+
+Use the unit test file to check your results.
