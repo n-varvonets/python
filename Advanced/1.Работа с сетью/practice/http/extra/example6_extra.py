@@ -82,7 +82,10 @@ print(response.json())
 # удаление заметки с сервера по её `id`.
 response = requests.delete(issue_url(created_issue['id']), cookies=cookies)
 print(response.status_code)
-# print(response.json())
+# print(response.json())  - выдаст ошибку
+
+""" ~~~~~~~ минус выше подхода что нужно постоянно передавать куки, что бы определить юзера ~~~~~~~ """
+"""есть специальный механизм сессии, который позволяет всего один раз установить соединение с сервером"""
 
 # SESSION EXAMPLE
 # Для более простой схемы работы и без постоянной передачи cookies используем
@@ -92,10 +95,9 @@ print(response.status_code)
 # авторизуемся и пытаемся проделать всё те же действия, но с request.Session.
 data = {'username': 'test_user', 'password': 'test_pass'}
 headers = {'Content-Type': 'application/json'}
-# создаем экземпляр `Session`
-session = requests.Session()
-
-response = session.post(login_url, data=json.dumps(data), headers=headers)
+session = requests.Session()  # создаем экземпляр `Session`
+"""и теперь через инстанс сессии логинимся"""
+response = session.post(login_url, data=json.dumps(data), headers=headers)   # т.е. куки был сохранен в response
 print(response.status_code)
 print(response.json())
 

@@ -15,7 +15,7 @@ def parse_http_response(text_response):
             break
         k, _, v = line.partition(':')  #  из строки line('Accept-Ranges: bytes') делаем тюпл(('Accept-Ranges', ':', ' bytes'))
         headers.setdefault(k.strip(), v.strip())  #  таким образом добавляем наши заголвоки в хедерс
-    content = ''.join(lines[empty_index + 1:])
+    content = ''.join(lines[empty_index + 1:])  # берем остальной контент(атррс без хедоров) прикольная конструкция котрая позволяет взять срез
     return int(status_code), headers, content
 
 
