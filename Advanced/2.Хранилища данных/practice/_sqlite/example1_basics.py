@@ -15,9 +15,11 @@ conn.execute(
               (3, "Dmitry", "Sidorov", "11-09-1992")
     """
 )
+users1 = conn.execute('SELECT * FROM "users"')
+users = conn.execute('SELECT * FROM "users"').fetchall()  # позволяет преобразовать все полученые записи в список
+print(f"users: {users1} ~~~|****|~~~ users1: {users}")
 
-users = conn.execute('SELECT * FROM "users"').fetchall()
-print(users)
+
 cursor = conn.execute('SELECT * from "users";')
 # загружаем по одной строке за один вызов fetchone
 print(cursor.fetchone())
@@ -32,7 +34,7 @@ except sqlite3.OperationalError as e:
     # попадаем по ошибке в этот блок кода
     print(e)
 
-# примеры плохой реализации- формаирование / конкатенация
+# примеры плохой реализации- формаирование / конкатенация - нарушается синтексисм кода
 first_name = 'Dmitry'
 sql_text = 'SELECT * FROM users WHERE first_name = "%s"' % (first_name,)
 print(sql_text)
@@ -40,15 +42,15 @@ first_name = '"Dmitry"'
 sql_text = 'SELECT * FROM users WHERE first_name = "%s"' % (first_name,)
 print(sql_text)
 
-# примеры подстановки вредоносного кода при форматировании
-sql_text = 'SELECT * FROM "users" WHERE id = %s' % (10,)
+# примеры подстановки вредоносного кода при форматировании - нарушается логика вызова
+sql_text = 'SELECT * FROM "users" WHERE id = %s' % (10,)  #
 print(sql_text)
-sql_text2 = 'SELECT * FROM "users" WHERE id = %s' % ('0 or id like "%"',)
+sql_text2 = 'SELECT * FROM "users" WHERE id = %s' % ('0 or id like "%"',)  #
 print(sql_text)
 
 # используем параметризованные запросы
 # позиционные параметры
-cursor.execute('SELECT * FROM "users" WHERE id = ?', (10,))
+cursor.execute('SELECT * FROM "users" WHERE id = ?', (10,))  #  в данном случае 10 в момент компиляции заменит знак вопроса
 # именованные параметры
-cursor.execute('SELECT * FROM "users" WHERE id = :id', {'id': 10})
+cursor.execute('SELECT * FROM "users" WHERE id = :id', {'id': 10})  # так же можно использовать и именованные параметры, как **kwargs
 conn.close()

@@ -11,3 +11,7 @@ with open('data/example1.csv', 'r') as f:
         print(row)
         # для обращения к конкретному столбцу строки используем обращение по
         # ключу `row['name'] --> row[0]`
+        # OrderedDict([('name', 'Samsung A5'), ('category', 'Smartphones'), ('price', '15000')])
+        """и можно к примеру вывести значение столбца по ключу(нежели обращаться по индексам)"""# ключу `row['name'] --> row[0]`
+        print(row["name"])
+        print('--------------')

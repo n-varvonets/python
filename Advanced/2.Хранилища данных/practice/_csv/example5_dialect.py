@@ -14,7 +14,7 @@ class CustomDialect(csv.Dialect):
     lineterminator = '\n'
 
 
-# регистрация диалекта, чтобы он был доступен во время создания reader/writer.
+# регистрация диалекта, чтобы он был доступен во время создания reader/writer. + даем ему имя('tester')
 csv.register_dialect('tester', CustomDialect)
 
 with open('data/output.csv', 'w') as f:

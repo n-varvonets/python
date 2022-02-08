@@ -13,8 +13,8 @@ with open('data/output.csv', 'w') as f:
         quoting=quoting
     )
 
-    writer.writeheader()
-    # запись также проихводится с использованием словарей в качестве строк
+    writer.writeheader()  # добавляет в csv заголовки('first_name', 'last_name', 'age')
+    # запись также производится с использованием словарей в качестве строк
     # с данными, что является более интуитивно, нежели просто плоский список
     writer.writerow({
         'first_name': 'Ivan',

@@ -21,7 +21,7 @@ last_names = root.findall('./person/last_name')
 ages = root.findall('./person/age')
 
 # собираем теги в общие группы и создаем общий словарь для каждого person.
-for values in zip(first_names, last_names, ages):
+for values in zip(first_names, last_names, ages):  # zip - склеивает листы в
     row = {value.tag: value.text for value in values}
     print(row)
 
