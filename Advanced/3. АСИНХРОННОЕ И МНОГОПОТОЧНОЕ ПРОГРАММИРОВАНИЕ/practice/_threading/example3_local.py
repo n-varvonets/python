@@ -1,6 +1,6 @@
 import threading
 
-# количсетво активных потоков
+# количсетво активных потоков - будет больше тредов, потому что в алнный момент запущенно более одного потока для работы самлого пайчармай
 print(threading.active_count())
 # текущий поток
 current = threading.current_thread()
@@ -31,6 +31,8 @@ print(threading.enumerate())
 thread_data = threading.local()
 thread_data.value = 5
 
+"""т.е. суть безопасного хранилища данных в том что меняя значение 
+в одном потоке - оно не затрагивает значение в другом потоке"""
 
 def print_results():
     """
@@ -45,7 +47,7 @@ def print_results():
 
 def counter(started, to_value):
     print(hasattr(thread_data, 'value'))
-    thread_data.value = started
+    thread_data.value = started  # присваивает нашему value значение started  и инкриментит его value аз
     for i in range(to_value):
         thread_data.value += 1
     print_results()
