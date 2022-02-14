@@ -1,3 +1,12 @@
+def privet(x):
+    if x == 0:
+        return
+    else:
+        print('hello world')
+        privet(x-1)
+
+privet(3)
+
 def sum(x):
     if x == 0:
         return 0
@@ -25,6 +34,6 @@ z = sum(5)
 print(z)
 a = factorial(5)
 print(a)
-fib = fibonacci(30)
+fib = fibonacci(10)
 print(fib)
 

@@ -19,8 +19,8 @@ def producer():
 
 # блокировка, позволяющая отметитьк акой участок кода атомарным.
 lock = threading.Lock()
-# __enter__ => lock.acquire()
-# __exit__ => lock.release()
+# __enter__ => lock.acquire()  # мы можем захватить блокировку этим методом.. потом выполнить какие-то действия...
+# __exit__ => lock.release()  # , а потом освободить тред
 
 task1 = threading.Thread(target=producer)
 task2 = threading.Thread(target=producer)
