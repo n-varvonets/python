@@ -32,3 +32,8 @@
 # and support of each other as one team
 """salary"""
 # depends on the conditions of the relocation, but in the amount of one and a half thousand
+
+
+
+# pyQT
+

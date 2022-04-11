@@ -94,3 +94,4 @@ print(list(map(lambda x: x*3+20, foo)))
 # sql:
 #     dml and ddl
 #     delete удаляет данныее из табл. дроп - удаляет тблицу как сущность
+
