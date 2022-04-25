@@ -31,13 +31,18 @@ print(getgeneratorstate(g))  # >>> GEN_SUSPENDED - состояние измен
 """2.теперь сделаю так что бы генератор не только принимал, а еще и отдавал бы что-то"""
 
 
-def subgen2():
-    x = 'Ready to accept message'
+def subgen2(some_val):
+    x = f'Ready to accept message {some_val}'
     message = yield x
     print('Subgen2 recieved:', message)
 
-g2 = subgen2()
+g2 = subgen2(some_val='my_str')
+print(getgeneratorstate(g2))
 print(g2.send(None))  # >>> Ready to accept message - генератор вернул нам переменную X
 # если второй раз уже что-то передать, то
+print(getgeneratorstate(g2))
+g2.send('my_sended_data')
+
+
 
 
