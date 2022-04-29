@@ -14,7 +14,7 @@
 # Even I have my own achievements in this sport (two-time Ukrainian Cup winner and three-time Ukranian champion in my age group...was a member of the national team )
 """education"""
 #  I received my bachelor's degree in speciality of petroleum engineering in Odessa National Academy of Food
-#  Tech and the master's degree by the same speciality I got in National University of Oil and Gas in Ivano-Frankivsk.
+#  Tech and the master's degree by the same speciality I got in National University of Oil  and Gas in Ivano-Frankivsk.
 #  I was working by my speciality approximately for a year and half. I was disappointed because of being an honest
 #  engenier by your own efforts and knowleges you will not achieve a higher postion.
 """why i go into IT"""
