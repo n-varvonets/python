@@ -1,6 +1,7 @@
 import threading
 
-# количсетво активных потоков - будет больше тредов, потому что в алнный момент запущенно более одного потока для работы самлого пайчармай
+# количсетво активных потоков - будет больше тредов, потому что в данный момент запущенно
+# более одного потока для работы самого пайчарма(без debug тредов = 1, а с дебаагом - 4)
 print(threading.active_count())
 # текущий поток
 current = threading.current_thread()
@@ -46,7 +47,8 @@ def print_results():
 
 
 def counter(started, to_value):
-    print(hasattr(thread_data, 'value'))
+    print('---', hasattr(thread_data, 'value'))  # >>> --- False - т.е. показываем что для данного
+    # треда thread_data.value значение не определно, хотя глобально выше мы его опрделили
     thread_data.value = started  # присваивает нашему value значение started  и инкриментит его value аз
     for i in range(to_value):
         thread_data.value += 1

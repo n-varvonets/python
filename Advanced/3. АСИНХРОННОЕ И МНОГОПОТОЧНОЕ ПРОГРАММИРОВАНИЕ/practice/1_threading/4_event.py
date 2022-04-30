@@ -4,6 +4,7 @@ import time
 
 def producer():
     """основной поток будет уведомлять всех слушателей, что он что-то сделал"""
+    print(' --- before producer()')
     time.sleep(10)
     print('Product found!')
     # устанавливаем событий
@@ -11,8 +12,9 @@ def producer():
     """
     - после product.set() управление перейдет к другому потоку
     - как только поток с  wait отработает, то придем обратно и очистим список событий, что бы нашу данную функцию
-    кто-то вызвал и опять установили set - wait - clear
+    кто-то вызвал и опять установили set  - wait - clear
     """
+    print(' ---  between set() and .clear()')
 
     product.clear()  # очищаем событие и нужно опять его ждать
 
@@ -35,6 +37,8 @@ task2 = threading.Thread(target=consumer)
 
 task1.start()
 task2.start()
+
+print('--- before join()')
 
 task1.join()
 task2.join()

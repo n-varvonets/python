@@ -9,9 +9,10 @@ def exec_watcher():
 
 
 def print_files():
+    """функция выводит список все файлов текущей директории"""
     for i in os.listdir('.'):
         print(i)
-    exec_watcher()
+    exec_watcher()  # если хочу постоянно каждые 5ть сек выводить список всех файлов (мониторить за изменением)
 
 
 exec_watcher()
