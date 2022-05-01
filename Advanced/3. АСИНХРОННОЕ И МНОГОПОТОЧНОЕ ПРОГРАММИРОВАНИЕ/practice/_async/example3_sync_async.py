@@ -5,7 +5,7 @@ import time
 
 def sync_worker(number, divider):
     print('Sync Worker started with values: {} / {}'.format(number, divider))
-    time.sleep(1)
+    time.sleep(3)
     print(number / divider)
 
 

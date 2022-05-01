@@ -17,7 +17,7 @@ cor = is_divider(100)
 cor.send(None)
 # передаем число для вычислений одной итерации, для присвоения value
 cor.send(11)
-cor.send(18)
+cor.send(100)
 cor.send(20)
 # закрывает корутину
 cor.close()

@@ -6,7 +6,7 @@ def producer():
     """основной поток будет уведомлять всех слушателей, что он что-то сделал"""
     print(' --- before producer()')
     time.sleep(10)
-    print('Product found!')
+    print('Product found! - before set()')
     # устанавливаем событий
     product.set()  # уведомляет  всех слушателей, что событие произошло
     """
@@ -35,10 +35,45 @@ product = threading.Event()
 task1 = threading.Thread(target=producer)
 task2 = threading.Thread(target=consumer)
 
+print('~~~ 1ый вариант запуска ~~~\n')
+print("---1--- before start")
 task1.start()
+print("--after start first task ---")
 task2.start()
-
-print('--- before join()')
-
+print("---2--- before join")
 task1.join()
 task2.join()
+
+# console:
+# ---1--- before start
+#  --- before producer()
+# ---2--- before join
+# product wait
+# --------- 10sec -------------
+# Product found! - before set()
+#  ---  between set() and .clear()
+# Product exists!
+
+
+print('~~~ 2ой вариант запуска ~~~\n')
+
+
+# print('---1--- run second task')
+# task1.start()
+# task1.join()
+#
+# print('---2--- run second task')
+# task2.start()
+# task2.join()
+
+# ---1--- run second task
+#  --- before producer()
+# ---- 10 sec ----
+# Product found! - before set()
+#  ---  between set() and .clear()
+# ---2--- run second task
+# product wait
+
+
+
+

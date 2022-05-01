@@ -25,7 +25,8 @@ async def async_main():
     и выоплняет fetch_url.
     """
     tasks = [
-        asyncio.ensure_future(fetch_url(url))
+        asyncio.ensure_future(fetch_url(url))  # при вызове мы создаем обьект корутину(без её запуска,
+        # инцииализируем так сказать)
         for url in resources
     ]
     started = time.time()
@@ -43,7 +44,7 @@ def sync_main():
     """
     started = time.time()
     for url in resources:
-        requests.get(url)
+        _ = requests.get(url)
         print(url)
     print('Sync spent time:  {:.2f}'.format(time.time() - started))
 
