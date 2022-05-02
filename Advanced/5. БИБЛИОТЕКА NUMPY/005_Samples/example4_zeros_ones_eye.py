@@ -1,13 +1,13 @@
 import numpy
 
-value1 = numpy.ones([3, 4], dtype=numpy.uint8)
-value2 = numpy.ones_like(value1)
+value1 = numpy.ones([3, 4], dtype=numpy.uint8)   # генерируем матрицу(из единиц), которая имеет shape 3х4
+value2 = numpy.ones_like(value1)  # новая матрица создана по примеру value1
 value3 = numpy.ones_like(
     [
         [1, 2, 3],
         [3, 2, 1]
     ]
-)
+)  # в этом примере сгенерировали новую ЕДИНИЧНУЮ матрицу с shape по примеру переданной в параметры. Распечатай - посмотри вывод.
 print(value1)
 print(value2)
 print(value3)
@@ -29,11 +29,11 @@ value8 = numpy.empty_like(value7)
 print(value7)
 print(value8)
 
-value9 = numpy.eye(4)
+value9 = numpy.eye(4)  # единичная матрица(единицы по диагонали)
 print(value9)
 
 value10 = numpy.eye(3)
 print(value10)
 
-value11 = numpy.eye(4, k=-1)
+value11 = numpy.eye(4, k=-1)  # можно сдвигать диагональ
 print(value11)

@@ -41,7 +41,7 @@ it's header
 190 2 3
 40 5 6"""
 results8 = numpy.genfromtxt(StringIO(data8),
-                            skip_header=2)
+                            skip_header=2)  # можно пропустить строки
 print(results8)
 
 data9 = """
@@ -51,4 +51,4 @@ results9 = numpy.genfromtxt(StringIO(data9),
                             dtype=(numpy.uint8, numpy.uint8, numpy.float16))
 print(results9)
 
-numpy.savetxt('test.csv', results9, fmt='%s')
+numpy.savetxt('test.csv', results9, fmt='%s')  # fmt='%s' - сохраняем как строку, можно f - float и т.п.
