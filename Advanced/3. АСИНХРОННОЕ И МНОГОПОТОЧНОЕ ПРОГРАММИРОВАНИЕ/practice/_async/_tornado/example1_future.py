@@ -3,7 +3,7 @@ from tornado.ioloop import IOLoop
 
 # создание фУтура
 future = gen.Future()
-future = gen.Task()
+# future = gen.Task()
 
 
 async def consumer():

@@ -21,12 +21,12 @@ async def fetch2(url):
 @gen.coroutine
 def fetch3(url):
     http_client = AsyncHTTPClient()
-    fetch_future = http_client.fetch(url)
-    future = gen.Future()
+    fetch_future = http_client.fetch(url)  # метод fetch возращает future но мы не дожидаемся ответа от данного футера
+    future = gen.Future()  # мы создаем свой футера из торнадо
 
     def callback(f):
         result = f.result().body
-        print('Done: ', future.done())
+        print('Done: ', future.done())  # в вызова set_result наш .done() возвращает False
         future.set_result(result)
         print('Done: ', future.done())
 
@@ -45,7 +45,7 @@ def fetch4(url):
         http_client.fetch(url)
     ]
     results = []
-    for i in (yield responses):
+    for i in (yield responses):  # как только мы получим результат футера - мы запустим итерацию цикла
         print('-', i.body)
         results.append(i.body)
     return results

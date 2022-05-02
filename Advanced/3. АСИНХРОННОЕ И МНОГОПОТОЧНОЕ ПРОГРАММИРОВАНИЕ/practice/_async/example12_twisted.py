@@ -1,4 +1,4 @@
-from twisted.internet import reactor, defer
+from twisted.internet import reactor, defer  # reactor - наш evnt_loop,  а defer - наш ивент
 
 
 def resolve_deferred(deff, value):
