@@ -15,3 +15,4 @@ def create_new_user(first_name: str, last_name: str) -> User:
 
 
 user: User = create_new_user('Eugene', 'Test')
+# user1: User = create_new_user('Eugene', 1)

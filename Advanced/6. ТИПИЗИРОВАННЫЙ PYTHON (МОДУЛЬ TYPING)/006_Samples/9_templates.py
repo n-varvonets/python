@@ -1,13 +1,15 @@
 from typing import TypeVar, Dict
 
-T = TypeVar('T')
+# шаблонные типы
 
-TemplateDict = Dict[str, T]
-IntDict = TemplateDict[int]  # Dict[str, int]
+T = TypeVar('T')  # это как [Any], но мы даем ему имя
+
+TemplateDict = Dict[str, T]  # даем наш темплейт
+IntDict = TemplateDict[int]  # Dict[str, int] - темплейт кт от интов
 StrDict = TemplateDict[str]  # Dict[str, str]
 
 
-def handler1(value: TemplateDict[T]) -> T:
+def handler1(value: TemplateDict[T]) -> T:  # абсолютно любой тип для значений дикта
     return list(value.values())[0]
 
 
