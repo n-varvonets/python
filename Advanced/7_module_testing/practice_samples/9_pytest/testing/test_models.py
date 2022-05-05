@@ -1,6 +1,6 @@
 import datetime
-
-from models import User
+# /home/nick/PycharmProjects/python/Advanced/7_module_testing/practice_samples/9_pytest/models.py
+# from 7_module_testing.practice_samples.9_pytest.models import User
 
 
 def setup_method(self, method):

@@ -7,6 +7,13 @@ class ObjectDoesNotExist(Exception):
 
 
 class Storage:
+    """
+    Работаем с УЖЕ созданной таблицей. В классе реализовано 6 методов:
+     - __init__ - определяем с каким классом(моделью/таблицей) с нашей бд работаем;
+     - bind_connection и execute_sql - методы класса(classmethod) и нужны, что бы получить конекшн с бд
+    и выполнить + сохранить измения в бд при выполнение 3х следущих..
+     - get_by_field, insert, delete - наши методы для бд
+    """
     # определяем шалоны SQL кода
     __SELECT_PATTER = 'SELECT * FROM {table_name} WHERE {fields}'
     __DELETE_PATTER = 'DELETE FROM {table_name} WHERE {fields}'
@@ -100,6 +107,10 @@ class Storage:
 
 class Metadata(object):
 
+    """
+    В этом классе уже создаем саму таблицу в бд перед
+    """
+
     def __init__(self, fields, cls):
         self._fields = fields
         # формируем название SQL таблицы на основе имени класса в Python
@@ -147,7 +158,7 @@ class Metadata(object):
 
 class Field(object):
     """
-    Простая абстракция над полем.
+    Простая абстракция над полем в нашей таблице.
     """
 
     def __init__(self, field_type, default=None):
@@ -156,6 +167,13 @@ class Field(object):
 
 
 class BaseMeta(type):
+
+    """
+    В рамках данного класса мы разделяем обычные атрибуты, ат атрибутов класса Field через isinstance.
+    В fields сохраняем наши атрибуты класса Field и передаем их в Metadata чтьо бы создаеть новую таблицу в бд нужными полями.
+    Остальные - идут в класс как его аттрибуты.
+    Дальше вызываем super() и проганяем наш класс, но уже без атрибутов класса Field
+    """
 
     # @classmethod
     # def __prepare__(mcs, name, bases, **kwargs):
@@ -171,15 +189,14 @@ class BaseMeta(type):
         # `fields` и прокидываем в metadata.
         for key, value in attrs.items():
             # условие для Field
-            if isinstance(value, Field):
+            if isinstance(value, Field):  #
                 fields.setdefault(key, value)
             else:
                 new_attrs[key] = value
         print(fields)
         # вызываем базовое поведение, но без fields
         new_cls = super().__new__(mcs, name, bases, new_attrs)
-        # дополняем класс экземпляром Storage, передавая в Storage созданный
-        # класс для таблицы
+        # дополняем класс экземпляром Storage, передавая в Storage созданный класс для таблицы
         new_cls.storage = Storage(new_cls)
         # дополняем класс метаданными, используя экземпляр класса `Metadata`
         # в него мы прокидываем поля и класс таблицы

@@ -11,7 +11,7 @@ class AuthApiTestCase(TestCase):
         Подготавливаем данные для тестов.
         Будет выполняться перед входом в каждый из методов,
         начинающихся с `test_`.
-        """ 
+        """
         self.username = 'test'
         self.password = 'pass1234'
         self.user = User.objects.create_user(
