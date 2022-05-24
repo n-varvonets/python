@@ -1,0 +1,7 @@
+# 1) список на конкретную книгу
+https://www.gutenberg.org/ebooks/5
+https://www.gutenberg.org/files/773/
+# [Etext #1]
+
+# 2) список кнги по датам
+https://www.gutenberg.org/dirs/GUTINDEX.1996
