@@ -2,8 +2,13 @@ import zipfile
 from os import listdir
 from os.path import isfile, join
 
-DIRECTORY_TO_EXTRACT_FROM = '/home/nick/PycharmProjects/gutenberg_ebooks/data/output/zip'
-DIRECTORY_TO_EXTRACT_TO = '/home/nick/PycharmProjects/gutenberg_ebooks/data/output/txt'
+# local pc dirs
+# DIRECTORY_TO_EXTRACT_FROM = '/home/nick/PycharmProjects/gutenberg_ebooks/data/output/zip'
+# DIRECTORY_TO_EXTRACT_TO = '/home/nick/PycharmProjects/gutenberg_ebooks/data/output/txt'
+
+# dirs for server
+DIRECTORY_TO_EXTRACT_FROM = '/home/ubuntu/gutenberg_ebooks/data/output/zip'
+DIRECTORY_TO_EXTRACT_TO = '/home/ubuntu/gutenberg_ebooks/data/output/txt'
 
 files = [f for f in listdir(DIRECTORY_TO_EXTRACT_FROM) if isfile(join(DIRECTORY_TO_EXTRACT_FROM, f))]
 
