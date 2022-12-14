@@ -46,10 +46,10 @@ for i in simple_iter_str:
     print(i)
 
 
-class SimpleIteratorNextInitV3:
+class MyGenerator:
+
     """
-    With separated methods next and iter()
-    Iter obj has next() and init()... the method has iter()
+    В генераторе обьекта должна бьіть функция реализована next()
     """
 
     def __init__(self, my_str: str):
@@ -65,24 +65,38 @@ class SimpleIteratorNextInitV3:
             raise StopIteration
 
 
-class SimpleIteratorNextInit_V3:
+class MyIterator:
     """
-    With separated methods next and iter()
-    Iter obj has next() and init()... the method has iter()
+    Итерируемьій обьект - не итератор, так как не поддерживает функцию __iter__,
+    но его можно спокойно сделать таковьім, давбив в класс метод __итер_ или прокинуть
+    итерируемьій обект в iter()
     """
 
-    def __init__(self, iet_obj):
-        self.iter_obj = iet_obj
+    def __init__(self, obj):
+        self.obj = obj
 
     def __iter__(self):
-        return self.iter_obj
+        return self.obj
 
 
-iet_obj = SimpleIteratorNextInitV3('wwe')
-iter_method = SimpleIteratorNextInit_V3(iet_obj)
+gen_obj = MyGenerator('wwe')
+iter_method = MyIterator(gen_obj)
+
 
 for i in iter_method:
     print(i)
+
+
+raw_l = [1, 2, 3]
+l = iter(raw_l)
+print(next(l))
+print(next(l))
+print(next(l))
+
+my_gen_1 = MyGenerator(raw_l)
+print(next(my_gen_1))
+print(next(my_gen_1))
+
 
 # ----------------------------------------------------------------------------------------
 
@@ -145,14 +159,18 @@ print(next(s))  # >>> ('b', 1)
 print(list(gen_expression()))  # [('a', 1), ('a', 2), ('a', 3), ('b', 1), ('b', 2), ('b', 3), ('c', 1), ('c', 2), ('c', 3)]
 
 """add info gen/iter/iter object"""
-# - Генератор - итератор, єлементами которого можно 1)итерироваться и 2)только один раз
-# - Итератор - обьект, которий 1)поддерживает функию next() и 2)помнит какой будет следующий єелемент коллекции"""
+# - Генератор - итератор, єлементами которого можно 1)итерироваться и 2)только один раз. Т.е. в генераторе обьекта должна бьіть функция реализована next()
+# - Итератор - обьект, которий 1)поддерживает функию next() благодаря методу __итер__ и 2)помнит какой будет следующий єелемент коллекции"""
 # - Итерируемий обьект (range(1, 6) или list,dict,...))  - обьект по которому можно 1)поочердно  пройтись и 2)может бить преобразован к итератору:
 list_iter_obj = [1, 2, 3]
+print(type(list_iter_obj))  # <class 'list'>
+print(list_iter_obj)  # [1, 2, 3]
 # next(list_iter_obj)  # - упадет ошибка что не не итеоратор, хоть и итерируемьій обьект
 gen_expression1 = iter(list_iter_obj)  # 2)НО может бить преобразован к итератору:
+print(type(gen_expression1))  # <class 'list_iterator'>
+print(gen_expression1)  # <list_iterator object at 0x10a290730>
 print(next(gen_expression1))  # 1
-# print(next(gen1))  # 2
+# print(list(gen1))  # 2
 # - ПОЄТОМУ итеруемий обьект - НЕ итератор, но его можно СПОКОЙНО сделать прокниув в iter().
 # - Генератор СРАЗУ является итератором и к нему СРАЗУ можно вьізвать функцию next()."""
 # - Корутина - генератор, только в который можно посылать данные с помощью метода сенд
