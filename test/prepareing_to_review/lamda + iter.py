@@ -1,3 +1,33 @@
+
+class MyCustomNotIterClass:
+    def __init__(self, limit):
+        self.limit = limit
+        self.counter = 0
+
+    def __iter__(self):
+        # return self
+        yield self
+
+    def __next__(self):
+        if self.counter < self.limit:
+            self.counter += 1
+            return self.counter
+        else:
+            raise StopIteration
+
+iterator = iter(MyCustomNotIterClass(6))
+print(iterator)  # при ретерн  - <__main__.MyCustomNotIterClass object at 0x10c005070>
+print(iterator)  # при йєлде - <generator object MyCustomNotIterClass.__iter__ at 0x105516a50>
+
+
+not_iter_obj = MyCustomNotIterClass(2)
+# print(next(not_iter_obj))
+# 1)что бьі сделать итерируемьій КАСТОМНЬІЙ обьект - нужно доавить итер
+iterator = iter(not_iter_obj)
+# 2) что бьі сделать генератор - нужно ему придать функцию __next__ - наврное єто и делать yield
+print(next(iterator))
+
+
 class SimpleIteratorV1:
     """For integer"""
 
@@ -49,7 +79,7 @@ for i in simple_iter_str:
 class MyGenerator:
 
     """
-    В генераторе обьекта должна бьіть функция реализована next()
+    обьект генератора должен иметь метод реализована next()
     """
 
     def __init__(self, my_str: str):
@@ -82,6 +112,7 @@ class MyIterator:
 gen_obj = MyGenerator('wwe')
 iter_method = MyIterator(gen_obj)
 
+print(next(iter(iter_method)))
 
 for i in iter_method:
     print(i)
