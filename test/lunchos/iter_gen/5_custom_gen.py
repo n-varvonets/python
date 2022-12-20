@@ -249,5 +249,6 @@ my_shiny_custom_list = [
     my_custom_data,
 ]
 for some_collection in my_shiny_custom_list:
-    for el in some_collection:
-        print(el)
+    print(some_collection)
+    # for el in some_collection:
+    #     print(el)
