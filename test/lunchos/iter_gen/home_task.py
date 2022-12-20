@@ -24,7 +24,6 @@ class MyIterableCustomData:
     def __iter__(self):
         return MyIteratorForIterableCustomData(self.obj_list)
 
-
 my_custom_data = MyIterableCustomData()
 my_custom_data.obj_list.append(1)
 my_custom_data.obj_list.append(30)
