@@ -43,3 +43,4 @@ class ClassUnderPass:
 
 inst = ClassUnderPass(1, 2)
 print(inst.a)
+
