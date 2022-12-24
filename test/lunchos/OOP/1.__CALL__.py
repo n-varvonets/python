@@ -95,7 +95,6 @@ class MyCallableInfoClass:
 
 
 ex_4 = MyCallableInfoClass()
-
 notif = [show_info, ex_4, MyCallableInfoClass()]  # MyCallableInfoClass() - при нажатии на кнопку () - создается инстанс обьекта класса
 for el in notif:
     el()
