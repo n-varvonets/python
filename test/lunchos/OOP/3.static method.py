@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-print(" --- 1. ВВедение --- ")
+print(" --- 1. Введение --- ")
 
 class Tumbochka:
     def __init__(self, id):
