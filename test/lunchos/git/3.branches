@@ -28,5 +28,4 @@ https://ibb.co/kGLkqfs
 2.2) создадим ветку(моя алтернативная вселенная (локально)):
     - git checkout -b nick_feature - создать и переключиться
 
-
-# 32
+"""new line for git of kolya branch"""
