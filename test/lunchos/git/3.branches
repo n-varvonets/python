@@ -27,3 +27,6 @@ https://ibb.co/kGLkqfs
     - Rebase the current branch on top of incoming changes:или докинуть удаленньіе изменения в ветку main(общая реальность (локально))
 2.2) создадим ветку(моя алтернативная вселенная (локально)):
     - git checkout -b nick_feature - создать и переключиться
+
+
+# 32
