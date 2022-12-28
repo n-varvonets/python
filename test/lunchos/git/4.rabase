@@ -2,7 +2,9 @@
 
 
 Вопрос: когда лучше использовать rebase, а когда pull requests?
-
+Ответ: это зависит от того, какие правила приняты в команде. если не хочется плодить кучу веток - то лучше rebase.
+если ветки не мешают жить - то я предпочту pull-requests / merge-requests
 
 
 # diff between main and 4_rebase
+# my second commit in branch 4_rebase
