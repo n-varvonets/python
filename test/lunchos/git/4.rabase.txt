@@ -21,6 +21,3 @@ pick - нужно заменить на squash (если вьівать кома
 Ответ: это зависит от того, какие правила приняты в команде. если не хочется плодить кучу веток - то лучше rebase.
 если ветки не мешают жить - то я предпочту pull-requests / merge-requests
 
-
-# my first commit n my new branch
-# one more commit for squashing
