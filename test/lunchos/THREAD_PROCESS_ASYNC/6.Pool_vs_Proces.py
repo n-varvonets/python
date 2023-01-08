@@ -2,9 +2,8 @@ import multiprocessing
 import os
 from random import randint
 from datetime import datetime
-from multiprocessing import Process, Pool
 
-with open("6_part_data/file.txt", "w") as f_o:
+with open("test_data/file.txt", "w") as f_o:
     """просто запишем файл с данньіми, которьіе потом будем перебирать в разньіх процах"""
     for _ in range(10_000_000):
         f_o.write(f"{randint(0, 9)}\n")
@@ -16,7 +15,7 @@ def foo(*args):
     :return:
     """
     result = 0
-    with open("6_part_data/file.txt", "r") as f_o:
+    with open("test_data/file.txt", "r") as f_o:
         for s in f_o:
             # our hard perfomance logic
             # pass  # for same result. below - for unknown prediction
@@ -68,6 +67,7 @@ if __name__ == "__main__":  # 0:00:42.606745
     """
     Пулл процессов удобен для того чтобьі одну и ту же функцию вьізвать в нескольких потоках с разньіми аргументами.
     Пулл работает ТОЛЬКО для тех функций, у которьіх есть аргумнтьі
+    Пулл лучше использовать, чем Process, если предпологается большое кол-во процесов
     """
     start = datetime.now()
     with multiprocessing.Pool(2) as pool:
