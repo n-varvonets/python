@@ -1,0 +1,63 @@
+# покажет все доступньіе командьі cat категории
+GET _cat
+
+# Инфа по индексам
+GET _cat/indices
+
+# Создать новьій индекс
+PUT new_index
+
+# Инфа по индексу
+GET new_index/_search
+
+# Удалить индекс
+DELETE my_shiny_index
+
+# Инфа по конкретному индексу
+GET my_shiny_index
+
+# Содать индекс с определнньім кол-вом шардом. стандарт - 5 шт.(изменить уже существующий - нельзя, а только создать новьій).
+# Если указать "number_of_replicas" - то єто сколько к шарду добавлять еще репликантов(по одной реплики на шард - всегда по дефолту)
+PUT my_shiny_index
+{
+  "settings": {
+    "number_of_shards": 5,
+    "number_of_replicas": 1
+  }
+}
+
+# Инфа по шардам
+GET _cat/shards
+
+# вставить документ(сущность в талицу(идекс) - в ответе получаем _id  документа(сущности) для дальнейшей работьі с ним
+POST my_shiny_index/_doc
+{
+  "name": "Nick"
+}
+
+# Инфа по индексу
+GET my_shiny_index/_search
+
+# поулчить документ по _id
+GET my_shiny_index/_doc/M4M9ooUB01ve9_vn_6Kt
+
+# UPDATE: попробуем добавить новое поле в наш документ (изменит атрибут version: 2)
+POST my_shiny_index/_update/M4M9ooUB01ve9_vn_6Kt
+{
+  "doc": {
+#    "name": "Nickolay",
+    "age": 27
+  }
+}
+
+# узнать, на какой шард улетит (улетел) документ
+GET my_shiny_index/_search_shards?routing=MYMdooUB01ve9_vn66
+
+
+
+
+
+
+
+
+
