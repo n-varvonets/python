@@ -1,0 +1,50 @@
+CREATE TABLE Sotrudniki (
+   ID         INT PRIMARY KEY,
+   FIO        VARCHAR(100),
+   BossID     INT,
+   StatusName VARCHAR(100)
+);
+
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (1,'Главный Алексей Георгиевич',NULL,'Генеральный директор');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (2,'Задумчивая Людмила Анатольевна',1,'Главный бухгалтер');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (3,'Скоробогатый Антон Васильевич',1,'Директор по продажам');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (4,'Праворукий Петр Иванович',1,'Директор отдела ИТ');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (5,'Кувалдин Анатолий Андреевич',3,'Менеджер');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (6,'Дебет Ольга Васильевна',2,'Бухгалтер');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (7,'Кредитная Марина Павловна',2,'Бухгалтер');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (8,'Балансная Инна Ивановна',2,'Бухгалтер');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (9,'Стобухина Людмила Прокофьевна',3,'Менеджер');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (10,'Мегастар Олег Павлович',3,'Менеджер');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (11,'Продамручку Джон Иванович',3,'Менеджер');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (12,'Дискретный Дмитрий Константинович',4,'Программист');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (13,'Двойнов Руслан Михайлович',4,'Инженер');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (14,'Формат Константин Борисович',4,'Инженер');
+insert into public.Sotrudniki (ID,FIO,BossID,StatusName) VALUES (15,'Тестовый Максим Эдуардович',4,'Программист');
+
+COMMIT;
+
+Листинг:
+alter session set "_ORACLE_SCRIPT"=true;
+CREATE USER test identified by 111;
+grant create session to test;
+grant create table to test;
+grant create procedure to test;
+grant create trigger to test;
+grant create view to test;
+grant create sequence to test;
+grant alter any table to test;
+grant alter any procedure to test;
+grant alter any trigger to test;
+grant alter profile to test;
+grant delete any table to test;
+grant drop any table to test;
+grant drop any procedure to test;
+grant drop any trigger to test;
+grant drop any view to test;
+grant drop profile to test;
+
+# даем инфу о системньіх предствалений(статистика, индексьі).Права даются от пользователя с повьішенньіми привилегиями.
+grant select on sys.v_$session to test;
+grant select on sys.v_$sesstat to test;
+grant select on sys.v_$statname to test;
+grant SELECT ANY DICTIONARY to test;
