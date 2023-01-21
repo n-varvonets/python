@@ -2,13 +2,14 @@
 # НЕИЗМЕНЯМЫЕ: INT FLOAT BOOL NONETYPE TUPLE FROZENSET
 # ИЗМЕНЯМЫЕ: LIST DICT SET  (т.е. можно сделать CRUD значений и как обьект - он останется прежним)
 """1.a)Коллекция и for in"""
-# Коллекция - (1)набор єлементов (2)произвольного типа.
-#   - Упордочньіе  коллекции - єлемент МОЖНО взять по индексу.(list или tuple/кортеж):    (дело - ссіьлочное и не аллоцирует память)
-l = [0, 1, 2, 3, 4, 5]  # (1)mutable, (2)ordered, (3)indexing, (4)ability to have duplicates - yes
+# Коллекция(или массив) - (1)набор єлементов (2)произвольного типа.
+#   - Упордочньіе  коллекции - єлемент МОЖНО взять по индексу(т.е. - ordered) + (дело - ссіьлочное и не аллоцирует память)
+l = [0, 1, 2, 3, 4, 5]  # (list или tuple/кортеж): (1)mutable, (2)ordered, (3)indexing, (4)ability to have duplicates - yes
 t = (0, 1, 2, 3, 4, 5)  # (1)NOT mutable, (2)ordered, (3)indexing, (4)ability to have duplicates - yes
-#   - НЕупордочньіе  коллекции - єлемент НЕЛЬЗЯ взять по индексу.(set/множество(неупорядочная коллеция уникальньіх елементов) или dict/словарь):
-s = {0, 1, 2, 3, 4, 5}  # (1)mutable, (2)NOT ordered, (3)NOT indexing, (4)ability to have duplicates - NO
-d = {0: '-', 1: 'a', 2: 'b', 3: 'c'}  # # (1)mutable, (2)ordered, (3)indexing, (4)ability to have duplicates - yes
+#   - НЕупордочньіе  коллекции - єлемент НЕЛЬЗЯ взять по индексу.
+s = {0, 1, 2, 3, 4, 5}  # set_множество(неупорядочная коллеция уникальньіх елементов) (1)mutable, (2)NOT ordered, (3)NOT indexing, (4)ability to have duplicates - NO
+d = {0: '-', 1: 'a', 2: 'b', 3: 'c'}  # dict/словарь: (1)mutable, (2)ordered, (3)indexing, (4)ability to have duplicates - yes
+
 """1.б)Проблема коллекции - для всех коллекций нужен свой метод метод обхода єлементов в цикле"""
 # №1. Обойти коллекцию без for.  (для упорядоченной коллекции)
 cnt = 0
