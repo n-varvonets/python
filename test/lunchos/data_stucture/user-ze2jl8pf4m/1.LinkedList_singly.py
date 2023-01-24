@@ -74,6 +74,6 @@ single_linked_list = SingleLinkedList()
 single_linked_list.append(10)
 single_linked_list.append(432)
 single_linked_list.append(2456)
-# single_linked_list.append(7859)
+single_linked_list.append(7859)
 
 single_linked_list.show_result_print()
