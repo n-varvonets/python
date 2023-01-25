@@ -21,7 +21,7 @@
 #       1.1)Упордочньіе  коллекции -єлемент МОЖНО взять по индексу(т.е. - ordered) + (дело - ссіьлочное и
 #       не аллоцирует память). Упорядочное, потому что єелемент можно взять по взять по индексу:
 #       t = (1, 2, 3, 4, 5)  # (1)NOT mutable, (2)ordered, (3)indexing, (4)ability to have duplicates - yes:
-#       l = [1, 2, 3, 4, 5]  # (list : (1)mutable, (2)ordered, (3)indexing, (4)ability to have duplicates - yes
+#       l = [1, 2, 3, 4, 5]  LinkedList (list : (1)mutable, (2)ordered, (3)indexing, (4)ability to have duplicates - yes -
 #       print(l[0], t[0])  # 1 1.
 #           1.1.1)Они бывают:
 #               1.1.1.1) НЕизменемьіми:
