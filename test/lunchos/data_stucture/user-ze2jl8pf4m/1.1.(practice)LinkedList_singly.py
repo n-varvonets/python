@@ -12,7 +12,6 @@ class SingleLinkedList:
     head = None  # начало списка(самьій первьій єелемент ВСЕГДА)..
     len_list = 0  # т.к. принято делать индексацию с нуля
 
-
     class Node:
         """
         Узльі - єто штука, которая хранит в себе ссьілки.
@@ -55,9 +54,7 @@ class SingleLinkedList:
             self.head = self.Node(current_element, next_element=None)
             print(f"node #{self.head.index}  with value of element {current_element} was added")
 
-
         else:
-
             """
             а если список не пуст, то перебором найдем последний созданньій нод в классе:
                 - добраться до самого последнего єлемента(Node) - ТОЛЬКО методом перебора - єто минус
@@ -66,7 +63,6 @@ class SingleLinkedList:
             """
             first_or_working_node = self.head  # self.head всегда в єтом - либо None(если список пуст)
 
-            # print(f"currnet node({recurse_links_head_nodes}: {recurse_links_head_nodes.element}) has link to next node({recurse_links_head_nodes.next_element}: {recurse_links_head_nodes.next_element.element})")
             while first_or_working_node.next_element:
                 """
                 1. типо нужно получить последний єлемент, а если єлемент не последний, то из текушего нода, достаем ссьілку на следищий
@@ -118,16 +114,35 @@ class SingleLinkedList:
             new_node = new_node.next_element
             new_node.index += 1
 
+    def delete(self, input_index):
+        first_or_working_node = self.head
+        previous_node = None
+        while first_or_working_node.index < input_index:
+            # get our element for deleting with previous node
+            previous_node = first_or_working_node
+            first_or_working_node = first_or_working_node.next_element
+
+        # make porper previous_node with index and next_element
+        previous_node.next_element = first_or_working_node.next_element
+        previous_node.index = first_or_working_node.index
+
+        # change indexes after deleting last elements
+        while previous_node.next_element:
+            previous_node.index -= 1
+            previous_node = previous_node.next_element
+        previous_node.index -= 1
+
     def show_result_print(self):
         first_or_working_node = self.head
         while first_or_working_node.next_element:
-            print(f"index: {first_or_working_node.index}, element:{first_or_working_node.element}")
+            print(f"index: {first_or_working_node.index}, element: {first_or_working_node.element}")
             first_or_working_node = first_or_working_node.next_element
-        print(f"index: {first_or_working_node.index}, element:{first_or_working_node.element}")
+        print(f"index: {first_or_working_node.index}, element: {first_or_working_node.element}")
 
 
 single_linked_list = SingleLinkedList()
 
+print('\n --- 1. append()  --- ')
 single_linked_list.append(10)
 single_linked_list.append(432)
 single_linked_list.append(2456)
@@ -136,7 +151,11 @@ single_linked_list.append("моя строка")
 single_linked_list.append([1, "2", {3: "3 value"}])
 single_linked_list.show_result_print()
 
-
+print('\n --- 2. insert()  --- ')
 single_linked_list.insert(2, ["my inserted value"])  # (индекс, єлемент), где индекс начинается с нуля
-
 single_linked_list.show_result_print()
+
+print('\n --- 3. delete()  --- ')  # node for deleting: index: 4, element:7859
+single_linked_list.delete(4)  # (индекс, єлемент), где индекс начинается с нуля
+single_linked_list.show_result_print()
+
