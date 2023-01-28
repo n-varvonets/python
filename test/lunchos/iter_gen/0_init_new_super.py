@@ -1,22 +1,3 @@
-first = "строка уже задана".count("а")
-sec = sum(1 for i in "строка уже задана" if i == "а")
-print(first, sec)
-# --------------------------
-foo = [2, 18, 9, 22, 17, 24, 8, 12, 27]
-filter1 = list(filter(lambda x: x % 3 == 0, foo))
-print(filter1)
-print(list(map(lambda x: x * 3 + 20, foo)))
-# --------------------------
-print(sorted(['s', 'qs', 'sqdqsw', 'ww', "saq", "1"]))
-my_lst = [1, 4, 5, 2, 0]
-print(my_lst.sort())
-print(my_lst)
-my_lst[1] = 8
-print(my_lst)
-print(my_lst.sort())
-
-
-# --------------------------
 # __init__ vs __new__
 # 1.Что такое магические (dunder) методы в Python?
 # 1. - магический(dunder) должньі присутсвовать в спецификации класса. Т.е. если мьі сделаем __свой_метод__ с 2мя
