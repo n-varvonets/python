@@ -1,0 +1,145 @@
+DELETE products
+
+POST products/_doc
+{
+  "tags": "simple tag"
+}
+
+# строки будут конкатенированы (с пробельными разделителями) перед тем, как попасть в анализатор
+POST products/_doc
+{
+  "tags": ["simple tag_1", "simple tag_2"]
+}
+
+GET products/_search
+
+# никакого типа массива тут и в помине не будет. В Эластике нет типа "массив"
+GET products/_mapping
+
+DELETE products
+
+# обратим внимание на start offset и end offset
+POST /_analyze
+{
+  "text": ["simple tag_1", "simple tag_2"],
+  "analyzer": "standard"
+}
+
+DELETE users
+
+# не сработает
+POST users/_doc
+{
+  "user_info": [
+    {"name": "Nikolai", "age": "31"},
+    {"name": "Maria", "age": 29}
+    ]
+}
+
+GET users/_mapping
+GET users/_search
+
+
+POST numbers/_doc
+{
+  "sample_numbers": [1, 2, 4, "5", 6, 7]
+}
+
+DELETE numbers
+
+GET numbers/_search
+GET numbers/_mapping
+
+
+# ограничения:
+# 1. массивы должны содержать данные приводимые к единому типу
+# 2. приведение типов сработает только для проиндексированных полей - если вставка
+# делается первый раз, то тогда надо, чтобы все элементы были одного типа
+
+# ВЛОЖЕННЫЕ ДОКУМЕНТЫ
+DELETE users
+
+PUT users
+POST users/_mapping
+{
+  "properties": {
+    "name": {
+      "type": "text"
+    },
+    "surname": {
+      "type": "text"
+    },
+    "age": {
+      "type": "integer"
+    },
+    "job_description": {
+      "properties": {
+        "company_name": {
+          "type": "text"
+        },
+        "posistion": {
+          "type": "text"
+        }
+      }
+    }
+  }
+}
+
+# альтернатива
+POST users/_mapping
+{
+  "properties": {
+    "name": {
+      "type": "text"
+    },
+    "surname": {
+      "type": "text"
+    },
+    "age": {
+      "type": "integer"
+    },
+    "job_description.company_name": {
+      "type": "text"
+    },
+    "job_description.position": {
+      "type": "text"
+    }
+  }
+}
+
+GET users/_mapping
+
+POST users/_doc
+{
+  "name": "Nikolai",
+  "surname": "Sviridov",
+  "age": 31,
+  "job_description": {
+    "company_name": "ARRIVAL",
+    "posistion": "developer"
+  }
+}
+
+POST users/_doc
+{
+  "name": "Ivan",
+  "surname": "Ivanov",
+  "age": 35,
+  "job_description.company_name": "Google",
+  "job_description.posistion": "Manager"
+}
+
+GET users/_search
+
+# Добавление поля к существующему маппингу
+
+# Эластик не зранит точную временную метку, когда документ был проиндексирован. Поэтому мы должны делать это сами.
+
+POST users/_mapping
+{
+  "properties": {
+    "created_at": {
+      "type": "date"
+    }
+  }
+}
