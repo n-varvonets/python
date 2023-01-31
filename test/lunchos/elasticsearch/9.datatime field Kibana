@@ -1,0 +1,148 @@
+# ВЛОЖЕННЫЕ ДОКУМЕНТЫ И РАБОТА С ТИПОМ DATE
+DELETE users
+
+PUT users
+{
+  "mappings":
+    {
+      "properties": {
+        "name": {
+          "type": "text"
+        },
+        "surname": {
+          "type": "text"
+        },
+        "age": {
+          "type": "integer"
+        },
+        "job_description": {
+          "properties": {
+            "company_name": {
+              "type": "text"
+            },
+            "posistion": {
+              "type": "text"
+            },
+            "work_since": {
+              "type": "date"
+            }
+          }
+        }
+      }
+    }
+}
+
+GET users/_mapping
+
+# упадёт ошибка
+POST users/_doc
+{
+  "name": "Nikolai",
+  "surname": "Sviridov",
+  "age": 31,
+  "job_description": {
+    "company_name": "ARRIVAL",
+    "posistion": "developer",
+    "work_since": "04/04/2222"
+  }
+}
+
+# не упадёт ошибка
+POST users/_doc
+{
+  "name": "Nikolai",
+  "surname": "Sviridov",
+  "age": 31,
+  "job_description": {
+    "company_name": "ARRIVAL",
+    "posistion": "developer",
+    "work_since": "2022-04-04"
+  }
+}
+
+# не упадёт ошибка
+POST users/_doc
+{
+  "name": "Ivan",
+  "surname": "Ivanov",
+  "age": 29,
+  "job_description": {
+    "company_name": "Google",
+    "posistion": "manager",
+    "work_since": "2021-01-01T13:07:41Z"
+  }
+}
+
+# Z - время с временной зоной UTC
+# если временная зона будет другая, то нужно использовать, например +01:00
+
+GET users/_search
+
+# не упадёт ошибка
+POST users/_doc
+{
+  "name": "Petr",
+  "surname": "Petrov",
+  "age": 25,
+  "job_description": {
+    "company_name": "Amazon",
+    "posistion": "engineer",
+    "work_since": 1234567890
+  }
+}
+
+# маппинг с форматированием даты
+PUT users
+POST users/_mapping
+{
+  "properties": {
+    "name": {
+      "type": "text"
+    },
+    "surname": {
+      "type": "text"
+    },
+    "age": {
+      "type": "integer"
+    },
+    "job_description": {
+      "properties": {
+        "company_name": {
+          "type": "text"
+        },
+        "posistion": {
+          "type": "text"
+        },
+        "work_since": {
+          "type": "date",
+          "format": "dd/mm/YYYY"
+        }
+      }
+    }
+  }
+}
+
+
+# поисковый запрос: вывести сотрудников, которые работают с 1 января 2022 года или позже:
+GET users/_search
+{
+  "query": {
+    "range": {
+      "job_description.work_since": {
+        "gte": "2022-01-01"
+      }
+    }
+  }
+}
+
+# поисковый запрос: вывести сотрудников, которые работают с 1 января 2022 года:
+GET users/_search
+{
+  "query": {
+    "term": {
+      "job_description.work_since": {
+        "value": 1234567890
+      }
+    }
+  }
+}
