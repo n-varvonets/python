@@ -1,16 +1,17 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ Elasticsearch security features have been automatically configured!
 ✅ Authentication is enabled and cluster connections are encrypted.
 
 ℹ️  Password for the elastic user (reset with `bin/elasticsearch-reset-password -u elastic`):
-  6AXjGTTNxP2Zwgf+=-0x
+  ukFWEbH21QeKBIljygcb
 
 ℹ️  HTTP CA certificate SHA-256 fingerprint:
-  518871c315927f364b3ccd9453fc2aa4c68c14fba539fe7693d791512f9caf95
+  e47bf4fa9f52d7bc93e8d259b4b3fe9a606383fe8d5f2d3c5b09880b7a525d46
 
 ℹ️  Configure Kibana to use this cluster:
 • Run Kibana and click the configuration link in the terminal when Kibana starts.
 • Copy the following enrollment token and paste it into Kibana in your browser (valid for the next 30 minutes):
-  eyJ2ZXIiOiI4LjYuMCIsImFkciI6WyIxOTIuMTY4LjEuMTAyOjkyMDAiXSwiZmdyIjoiNTE4ODcxYzMxNTkyN2YzNjRiM2NjZDk0NTNmYzJhYTRjNjhjMTRmYmE1MzlmZTc2OTNkNzkxNTEyZjljYWY5NSIsImtleSI6IkpJUHlvWVVCMDF2ZTlfdm52cUx2OldfczJ2X0Q2UUZLWXhHVXR0Y0s3SlEifQ==
+  eyJ2ZXIiOiI4LjYuMSIsImFkciI6WyIxOTIuMTY4LjEuNjo5MjAwIl0sImZnciI6ImU0N2JmNGZhOWY1MmQ3YmM5M2U4ZDI1OWI0YjNmZTlhNjA2MzgzZmU4ZDVmMmQzYzViMDk4ODBiN2E1MjVkNDYiLCJrZXkiOiIzNTFmQ1lZQlJmSkNLYktfWl92Mjo5NlU2ZnJvRVNSS0h3YUJUNnRwVlNRIn0=
 
 ℹ️  Configure other nodes to join this cluster:
 • On this node:
@@ -19,3 +20,4 @@
   ⁃ Restart Elasticsearch.
 • On other nodes:
   ⁃ Start Elasticsearch with `bin/elasticsearch --enrollment-token <token>`, using the enrollment token that you generated.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

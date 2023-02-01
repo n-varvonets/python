@@ -1,0 +1,33 @@
+version: "3.0"
+services:
+  elasticsearch:
+    # название запущенного контенера в системе
+    # сам образ откуда берем сервис
+    container_name: es-container
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.2.3
+    environment:
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+    networks:
+      # подключаемся сети, которую ниже создали
+      - es-net
+    ports:
+      # внутренньій и внешний порт
+      - "9200:9200"
+  kibana:
+    container_name: kb-container
+    image: docker.elastic.co/kibana/kibana:8.2.3
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es-container:9200
+    networks:
+      - es-net
+    depends_on:
+      - # означает что наш контейнер Киабньі будет ожидать пока контейнер с Еластиком запустится
+      - elasticsearch
+    ports:
+      - "5601:5601"
+networks:
+  es-net:
+    # создаем совместную сеть для кибани и еластика,
+    # для того что бьі Кибана смогла увидеть контейнер Еластика и ПОДЛЮЧИТСЯ БЕЗ проблем
+    driver: bridge
