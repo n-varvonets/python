@@ -1,0 +1,92 @@
+# name: describe on your repos action page
+# когда ворклоф будет работать - мьі єто имя будем видеть(рекомендуетс без пробелов назвать)
+name: Django CI
+
+# можно сделать пгобальньіе переменньіе на файл, которьіе будет видеть наши job-ьі
+
+env:
+  APPLICATION_NAME   : "My django project"
+  DEPLOY_PACKAGE_NAME: "django-deploy-file_ver_${{ github.sha }}"
+# ${{ github.sha }} - так же можно использовать глобальньіе переменньіе, которьіе нам сам гитхаб дает,
+# github.sha - на каждьій коммит нам гхаб вьідает его хеш и к нему можно достучаться по єтой переменной
+
+
+# here - our events:
+# so every time will be push or pull request to "main" -> jobs will be executed
+
+on: # Option + Space - покажет все возможньіе тригеррьі, *required
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# jobs - is our name of workflow
+# workflow - is  sequence of tasks(steps or combination of actions)
+
+jobs: # required
+  # каждый джоб запустится на отдельной виртуальной машине.  Можно как параллельно их заупскать, так и последовательно (needs)
+  build_custom_name: # job-ьі можно назьівать как угодно.
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.8, 3.9]
+
+    steps:
+    #  people can free use actions are created by some other
+    #  actions - already wrote workflow and we can reuse it here all exestiong action in github:
+    # https://github.com/orgs/actions/repositories?type=all
+    # here under background what he does. there's documantation what exatly this action doing.
+    # https://github.com/actions/checkout/blob/main/action.yml
+
+    # steps - наши таски, где job - блок тасков
+    - name: Print Hello World
+      run: echo "Hello world"
+
+    - uses: actions/checkout@v3
+    # here another action which prepare my env
+    # uses - selects an action
+    # run - runs a command-line command
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Dependencies
+      # | - єта палочка позволяет запустить несколько комманд подряд
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run Tests
+      run: |
+        python manage.py test
+
+  test-job:
+    runs-on: ubuntu-latest
+    needs: [build_custom_name]  # хочу что бьі сналача успешно прошел запуск job = build_custom_name, а потом уже запустится єтот
+
+    # можно так же сделать глобальную переменную для ОКНКРЕТНОГО джоба
+    env:
+      my_variable_for_current_job: "Lol kek"
+
+    steps:
+
+      - name: Print Hello World from Test
+
+        # можно так же сделать лакальную переменную для ОКНКРЕТНОГО СТЕПА
+        env:
+          LOCAL_STEP_VAR: "step variable"
+
+        run: |
+          echo "Hello world from Test after job=build_custom_name"
+          echo "here accesses to global WORKFLOW env ${{ env.DEPLOY_PACKAGE_NAME }}"
+          echo "here accesses to local JOB env ${{ env.my_variable_for_current_job }}"
+          echo "here accesses to local STEP env $my_variable_for_current_job"
+          
+
+      - name: check on empty dir
+        run: ls -la  # проверяем что директория пустая
+      # ниже команда(checkout@v1) склонирует полностью актуальную версию  branch мастера
+      - name: Git clone my repo
+        uses: actions/checkout@v1
+        run: ls -la  # проверяем что директория УЖЕ с нашим проектом
