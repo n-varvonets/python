@@ -1,0 +1,11 @@
+API Gateway : позволяет создать "front door" для программ, что бьі получить доступ к ресурсам на aws.
+    Т.е. доступ почтки ко всему что есть есть а акке aws черезе линк url
+Lambda Func : взаимдествуем со всеми сервисасами в aws
+API Gateway and Lambda Func together : если лямде дать разрешение то она сделает все in aws by get-request via url
+
+* URL можно делать защищенньім через API Key
+защищенньій - т.к. 1 млн. попьітокper month aws дает беслатно, но в ситуации, когда кто-то кодом цикл бесконечньій
+поставит, то єто обонкротет компанию.. для єтого и придумали API Key to url
+
+aws configure
+aws lambda invoke --function-name=Lambda-list-S3-buckets --region=ca-central-1 output.txt
