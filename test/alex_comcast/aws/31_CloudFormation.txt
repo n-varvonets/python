@@ -11,3 +11,5 @@ CloudFormation состоит из 2х вещей:
 Шаблон инфраструктурьі запускаем в любом  AWS Region
 
 CloudFormation - его альтернатива на рьінке Terraform
+
+Припкрепляю пример автоматизации создания полной трехуровневой VPC с Public,Private и Database Subnets используя сервис CloudFormation.
