@@ -1,0 +1,17 @@
+SNS - Simple Notifiction ervice - напододбии обьічного SMS позволяет публиковать сообщения(вьізьівать тригерьі):
+    - topic: тема листа рассььлки
+    - subscribes: єто наши подспичики, кому отправлять или какой тригер вьізьівать(через протокльі)
+Протокольі бьівают: {
+  "default": "Sample fallback message",
+  "email": "Sample message for email endpoints",
+  "sqs": "Sample message for Amazon SQS endpoints",
+  "lambda": "Sample message for AWS Lambda endpoints",
+  "http": "Sample message for HTTP endpoints",
+  "https": "Sample message for HTTPS endpoints",
+  "sms": "Sample message for SMS endpoints"
+}
+
+Работает как "Push Notification", в отличии от "Pull Notification (SQS)".
+    - вьі делаете Publish(push) вашего сообщения в Topic и оно отправляется всем subsribes
+    - Pull notification(SQS) : отправляем pull notification  смс подпичику и оно там и лежит,
+      до тех пор пока подписчик сам не зайдет туда и не сделает pull  его

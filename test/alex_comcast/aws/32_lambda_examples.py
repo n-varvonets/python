@@ -25,7 +25,8 @@ def lambda_handler(event, context):
 
 
 # 2nd lamda func
-import boto3, os, json, time
+import boto3, os, json
+from datetime import datetime
 
 
 AWS_DEFAULT_REGION = "ca-central-1"
@@ -34,7 +35,9 @@ os.environ['AWS_DEFAULT_REGION'] = AWS_DEFAULT_REGION
 
 # def lambda_handler(event, context):
 #     """Lambda func to  create S3 Buckets"""
-#     bucket_name = 'lambda.created.me-' + str(time.time())
+#     now = datetime.now()
+#     bucket_name = "lambda.created.me-"+ str(now.year) + "." + str(now.month) + "." + str(now.day) + "-" + str(now.hour) + "." + str(now.minute)
+#     print(bucket_name)
 #     myS3 = boto3.resource('s3')  # be aware, here not client
 #     try:
 #         result = myS3.create_bucket(
@@ -46,11 +49,12 @@ os.environ['AWS_DEFAULT_REGION'] = AWS_DEFAULT_REGION
 #             'body': json.dumps("<h1><font color=green>S3 Created Successfully:</font><br><br>" )
 #         }
 #     except Exception as err:
-#         # print(err)
+#         print(err)
 #         return{
 #             'statusCode': 400,
-#             'body': json.dumps("<h1><font color=red>my custom Error!</font><br><br>", err)
+#             'body': json.dumps("<h1><font color=red>my custom Error!</font><br><br>")
 #         }
+
 
 
 
