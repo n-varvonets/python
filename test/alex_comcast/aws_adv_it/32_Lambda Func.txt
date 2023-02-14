@@ -17,3 +17,5 @@ Lamda - сердце Serverless технологий:
 Practice: создадить 2 Lambda funcs, которьіе:
     - одна читает существуеющие S3 buckets  у меня
     - вторая: создавать s3 buckets
+
+Use Lambda Proxy integration - позволит использовать ламбду, как url, т.е. методом get передавать параметрьі в events

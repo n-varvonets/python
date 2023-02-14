@@ -1,4 +1,4 @@
-# documentation dor all methods of boto3 lib in aws services
+# documentation dor all methods of boto3 lib in aws_adv_it services
 # https://boto3.amazonaws.com/v1/documentation/api/latest/index.html
 # As an example there you can see 2 lamda func
 

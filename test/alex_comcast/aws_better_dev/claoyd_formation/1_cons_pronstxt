@@ -1,0 +1,9 @@
+"""What is Cloudformation, An example"""
+- Instead of going to CLI or UI and clicking thousends btns for creating "flow" to set up  web-app or
+aws lambda-func EVERY TIME you can it spell in code
+- как обьічную интрукцию по настройке и поднятие приложения aws уже в rest виде после api-gatewway со всеми ролями и
+сервисами, что тьі делаешь на сервере, только автоматизировано в .yaml)
+- write a tamplate file and define how  each of have to be created, query to db ang give  permissions AS A CODE
+"""AWS Cloudformation Key Concepts"""
+"""Cloudformation Pros and Cons"""
+"""CloudFormation vs ['terraform', serverless, aws san, cloud Dev-Kit]"""

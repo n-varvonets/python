@@ -49,7 +49,7 @@
 #       - different languages(js,python,java,django,fastapi,node.js)
 #       - different os(ubuntu,win,macos,android)
 #       - different tools(docker, psql, redis)
-#       - different hosts(aws, digital ocean)
+#       - different hosts(aws_adv_it, digital ocean)
 # So every time you have to:
 #   - install python
 #   - install django
