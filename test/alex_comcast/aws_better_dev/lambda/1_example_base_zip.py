@@ -43,4 +43,15 @@ def lambda_handler(event, context):
             }
 
 
+"""Feature difference"""
+#  №|       feature                       |      REST      |      HTTP      |   description
+# ----------------------------------------------------------------------------------------------------------------------------------
+#  1| Usage Plans & API Keys              |      yes       |       no       | assign a key to specific user by his plan of our app
+#  2| API Caching                         |      yes       |       no       | make our service calls faster by caching them
+#  3| Testing / Mocking                   |      yes       |       no       |
+#  4| Request Validation & transformation |      no        |       yes      |
+#  5| ALB Integration                     |      no        |       yes      | App load balancing for services (EC2)
+# -----------------------------------------------------------------------------------------------------------------------------------
+"""WARN: Use HTTP *everytime*, except when the feature isn't supported"""
+
 
