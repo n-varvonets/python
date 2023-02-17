@@ -1,0 +1,30 @@
+dynamoDB - popular NoSql DB with many features(tradional sql - frozen columns in tables).
+- tables in sql its Index in NoSql and row in index it's a document
+- for working with data need to pass:
+    - key and value into index for creating an entity
+    - a key for getting his value.
+# problem: hard to configure to get started
+efforts:
+    - optimized for perfomance at scale(в обьічной rds нужно бьіло б создавать кластер с лоад балансером на дб, а тут автоскелинг)
+    - hight Availlablity(гарант что будет 99,9999% времени досутпен) & Durability(lvl of redundancy(надлишок) store multi copies of your data)
+    - ideal for app with know access patterns
+    - access through APIs/ORMs and authorized by IAM
+    - inregrates well with other AWS Services(API Gateway, S3)
+    - cost effective usage based payment model:
+        - on demand: pay for hardware - не интересно нам, потому что задали железо и оно не меняется в моменте от нагрузки.
+        - on proivision mode: aws configure autiscaling by itself and give access - наш вариант, потмоу что пармаетрьі
+         сервера меняются в моменте в зависмости от нагрузки.
+
+core concepts:
+    - tables: colletions of items with(https://ibb.co/9sxzMtB)
+        - unique id(primary key). (нужно себя спросить, будет ли айдишник записи дуплироваться, если да, то нужно создать еще и sort key)
+        - attribute of entity(deteils in json),
+    - items: our objects in key/value pairs,
+    - attributes: parametrs our ojects,
+    - indexes:
+        - PRIMARY column for index(PK): unique id(primary key) of entity. primary key can be consist from two columns:
+                - partition key: acc_id = 1
+                - sort key: caration_date = 2022-10-11   -  LOCAL SECONDARY index(LSI)
+        - GLOBAL SECONDARY index(GSI): обьічная индексация доп.стоблцов обьекта в таблице через хеш-функцию
+
+

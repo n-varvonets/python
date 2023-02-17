@@ -1,5 +1,5 @@
 import json
-# <api-lambda-url-of-recourse-not-method>?transactionId=4&type=PURCHASE&amount=550
+# <api-lambda_func-url-of-recourse-not-method>?transactionId=4&type=PURCHASE&amount=550
 # https://in7hefeaqg.execute-api.ca-central-1.amazonaws.com/test_env/transstions?transactionId=4&type=PURCHAS&amount=550
 
 print('Loading function --')
