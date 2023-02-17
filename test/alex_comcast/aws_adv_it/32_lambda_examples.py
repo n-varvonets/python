@@ -36,7 +36,7 @@ os.environ['AWS_DEFAULT_REGION'] = AWS_DEFAULT_REGION
 # def lambda_handler(event, context):
 #     """Lambda func to  create S3 Buckets"""
 #     now = datetime.now()
-#     bucket_name = "lambda.created.me-"+ str(now.year) + "." + str(now.month) + "." + str(now.day) + "-" + str(now.hour) + "." + str(now.minute)
+#     bucket_name = "lambda_func.created.me-"+ str(now.year) + "." + str(now.month) + "." + str(now.day) + "-" + str(now.hour) + "." + str(now.minute)
 #     print(bucket_name)
 #     myS3 = boto3.resource('s3')  # be aware, here not client
 #     try:
