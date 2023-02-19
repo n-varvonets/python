@@ -1,0 +1,17 @@
+как обратиться к сервису aws *
+1) typacally using REST with_OUT service proxy:
+    - browser(client)which calls REST API GW
+    - REST API GW will call a lambda func
+    - lambda func will manage DynamoDB
+
+2) но если нам не обьязательно использовать lambda func, а напрямую обратить к dynamoDB
+2.1) в случае с dynamoDB:
+    - мьі можем напрямую БЕЗ lambda func:
+        - put item
+        - get item
+        - queries
+        - любой легкий прямой запрос без доп процессов
+    - но если нам нужно запустить какие-то процессьі перед dynamoDB и после вьізова url в браузера, например:
+        - ковертировать дату в спец формат...
+        - достать датку еще откуда
+        - любой сложньій процесс

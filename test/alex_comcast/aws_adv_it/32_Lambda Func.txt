@@ -13,6 +13,7 @@ Lamda - сердце Serverless технологий:
     - aws ui
     - asw cli
     - API Gateway: позволить создать url-link, перейдя по которой GET - можно ее вьізвать
+    - sns, sqs
 
 Practice: создадить 2 Lambda funcs, которьіе:
     - одна читает существуеющие S3 buckets  у меня

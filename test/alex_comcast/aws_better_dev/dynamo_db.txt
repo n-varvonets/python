@@ -3,7 +3,7 @@ dynamoDB - popular NoSql DB with many features(tradional sql - frozen columns in
 - for working with data need to pass:
     - key and value into index for creating an entity
     - a key for getting his value.
-# problem: hard to configure to get started
+# problem: hard to configure to get startedа
 efforts:
     - optimized for perfomance at scale(в обьічной rds нужно бьіло б создавать кластер с лоад балансером на дб, а тут автоскелинг)
     - hight Availlablity(гарант что будет 99,9999% времени досутпен) & Durability(lvl of redundancy(надлишок) store multi copies of your data)
