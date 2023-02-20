@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  MyDynamoDbTable:  # даем названием ресуерса(по желанию), а ниже подключим сам aws сервис  к єтому имени
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: table_klenova_1
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "Name"
+          AttributeType: "S"
+        - AttributeName: "Age"
+          AttributeType: "N"
+      KeySchema:  # Визначає атрибути, які складають первинний ключ для таблиці або індексу.
+        # HASH - partition key(ключ розділу), RANGE - sort key(люч сортування)
+        - AttributeName: "id"
+          KeyType: "HASH"
+        - AttributeName: "Name"
+          KeyType: "RANGE"
+      GlobalSecondaryIndexes:
+        - IndexName: "Age-index"
+          KeySchema:
+            - AttributeName: Age
+              KeyType: HASH
+          Projection:
+            NonKeyAttributes: [ ]
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: "10"
+            WriteCapacityUnits: "5"
+      TimeToLiveSpecification:
+        AttributeName: "ExpirationTime"
+        Enabled: true
+      ProvisionedThroughput:
+        ReadCapacityUnits: "10"
+        WriteCapacityUnits: "5"
+    DependsOn:  # specify resources which have to be created at first
+      - DynamoDBQueryPolicyKek
+
+  DynamoDBQueryPolicyKek:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: DynamoDBQueryPolicy-my-name  # doesn't matter name
+      PolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Action: "dynamodb:*"
+            Resource: "*"
+      Roles:  #  и мьі хотим применить єту полиси к роли
+        - Ref: "OrdersTableQueryRoleLol"
+
+  OrdersTableQueryRoleLol:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "dynamodb.amazonaws.com"
+            Action:  # поволяющий роль, на авс такое можно посмотреть
+              - "sts:AssumeRole"
+      Path: "/"
+
