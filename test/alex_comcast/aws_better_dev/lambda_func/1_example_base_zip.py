@@ -24,7 +24,7 @@ def lambda_handler(event, context):
                 "transaction_amount": transaction_amount
             }
 
-            # 3. Construct http response
+            # 3. Construct http respoanse
             # response_object = {
             #     "statusCode": 200,
             #     "headers": transaction_type,

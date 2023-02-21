@@ -11,11 +11,10 @@ Resources:
           AttributeType: "S"
         - AttributeName: "Age"
           AttributeType: "N"
-      KeySchema:  # Визначає атрибути, які складають первинний ключ для таблиці або індексу.
-        # HASH - partition key(ключ розділу), RANGE - sort key(люч сортування)
-        - AttributeName: "id"
+      KeySchema:
+        - AttributeName: "id"  # id is set to HASH, which indicates that it is the partition key
           KeyType: "HASH"
-        - AttributeName: "Name"
+        - AttributeName: "Name"  # name is set to RANGE, which indicates that it is the sort key.
           KeyType: "RANGE"
       GlobalSecondaryIndexes:
         - IndexName: "Age-index"
