@@ -4,23 +4,23 @@ from datetime import datetime
 import uuid
 
 GET_RAW_PATH = "/test/get_user"
+DELETE_RAW_PATH = "/test/delete_user"
 POST_RAW_PATH = "/test/create-new-user"
 PUT_RAW_PATH = "/test/update-new-user"
-table_name = 'new_users'
+
+TABLE_NAME = 'new_users'
+
 # Define the AWS access key ID and secret access key for the IAM user
 aws_access_key_id = 'AKIASBKR2UWDIH5HHM4W'
 aws_secret_access_key = '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'
 
+
 def get_user_by_id(table, user_id):
-    print("222user_id=", user_id, type(user_id))
-    response = table.get_item(
-        Key=user_id
-    )
-    print('ssss', response)
+    key = {'ID': user_id}
+    response = table.get_item(Key=key)
     response = {
-        "id": str(response["Item"]["ID"]),
-        "name": str(response["Item"]["name"]),
-        "age": str(response["Item"]["age"]),
+        "name": str(response["Item"]["ITEM"]["name"]),
+        "age": str(response["Item"]["ITEM"]["age"]),
         "status_method": "Active"
 
     }
@@ -28,6 +28,32 @@ def get_user_by_id(table, user_id):
         'statusCode': 200,
         'body': json.dumps(response)
     }
+
+
+def delete_user(table, user_id):
+    key = {'ID': user_id}
+    table.delete_item(Key=key)
+    return
+
+
+def update_user_item(table, user_id, new_item):
+    key = {'ID': user_id}
+    response = table.get_item(Key=key)
+
+    updated_user_item = {
+        'ID': user_id,
+        'added': response['Item']['added'],
+        'updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'ITEM': new_item
+    }
+
+    table.put_item(Item=updated_user_item)
+    response = {
+        "requests_status": 'User was successfully updated',
+        "ITEM": updated_user_item
+    }
+
+    return response
 
 
 def create_new_user(table, user_item):
@@ -41,7 +67,7 @@ def create_new_user(table, user_item):
         'ITEM': user_item
     }
 
-    response = table.put_item(
+    table.put_item(
         Item=new_item
     )
     # make proper response
@@ -51,15 +77,10 @@ def create_new_user(table, user_item):
         "status_in_db": "was successfully created"
     }
 
-    return {
-        'statusCode': 201,
-        'body': json.dumps(response)
-    }
+    return response
 
 
 def lambda_handler(event, context):
-    print('event=', event)
-
     try:
         # Create a session with the IAM user credentials and connect to our table in dynamoDB
         session = boto3.Session(
@@ -67,11 +88,9 @@ def lambda_handler(event, context):
             aws_secret_access_key=aws_secret_access_key
         )
         dynamodb = session.resource('dynamodb')  # resource лучше чем client(т.к. не нужно указьівать тип значения)
-        table = dynamodb.Table(table_name)
+        table = dynamodb.Table(TABLE_NAME)
 
         # our crud logic
-        response = ""
-
         if event['rawPath'] == POST_RAW_PATH:
 
             # make clear dict from string
@@ -80,14 +99,35 @@ def lambda_handler(event, context):
 
             user_item = json.loads(body_string)
             response = create_new_user(table, user_item)
-
+            return {
+                'statusCode': 201,
+                'body': json.dumps(response)
+            }
         elif event['rawPath'] == GET_RAW_PATH:
 
             user_id = event['queryStringParameters']['ID']
-
             response = get_user_by_id(table, user_id)
+            return {
+                'statusCode': 200,
+                'body': json.dumps(response)
+            }
+        elif event['rawPath'] == PUT_RAW_PATH:
 
-        return response
+            # make clear dict from string
+            raw_body_string = event["body"]
+            body_string = raw_body_string.replace("\n", "").replace(" ", "").replace('\\"', '\"').replace("'", "\"")
+            user_item = json.loads(body_string)
+
+            response = update_user_item(table, user_id=user_item['user_id'], new_item=user_item['NEW_ITEM'])
+
+            return {
+                'statusCode': 201,
+                'body': response
+            }
+        elif event['rawPath'] == DELETE_RAW_PATH:
+            delete_user_id = event['queryStringParameters']['ID']
+            delete_user(table, delete_user_id)
+            return {'statusCode': 204}
 
     except Exception as err:
         print(err)
