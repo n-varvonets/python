@@ -1,0 +1,14 @@
+Resources:
+  UsersTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: "new_users"
+      AttributeDefinitions:
+        - AttributeName: "ID"
+          AttributeType: "S"  # as uuid4() in string type instead autoincreament as dynamod not support it
+      KeySchema:
+        - AttributeName: "ID"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+#      StreamSpecification:  # указывает, что поток будет использоваться для захвата изменений в таблице.
+#        StreamViewType: "NEW_IMAGE"
