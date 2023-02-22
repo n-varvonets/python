@@ -1,48 +1,92 @@
-import boto3, json
-from boto3.dynamodb.conditions import Key
+import boto3
+import json
+from datetime import datetime
+import uuid
+
+GET_RAW_PATH = "/test/get_user"
+POST_RAW_PATH = "/test/create-new-user"
+PUT_RAW_PATH = "/test/update-new-user"
+table_name = 'new_users'
+
+
+def get_user_by_id(table, user_id):
+    key = {'ID': user_id}
+    response = table.get_item(Key=key)
+
+    response = {
+        "name": str(response["Item"]["ITEM"]["name"]),
+        "age": str(response["Item"]["ITEM"]["age"]),
+        "status_method": "Active"
+
+    }
+    return {
+        'statusCode': 200,
+        'body': json.dumps(response)
+    }
+
+
+def create_new_user(table, user_item):
+    # gathering params
+    new_user_id = str(uuid.uuid4())
+
+    new_item = {
+        'ID': new_user_id,
+        'added': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'ITEM': user_item
+    }
+
+    response = table.put_item(
+        Item=new_item
+    )
+    # make proper response
+    response = {
+        "entity_id": new_user_id,
+        "name_user": user_item['name'],
+        "status_in_db": "was successfully created"
+    }
+
+    return {
+        'statusCode': 201,
+        'body': json.dumps(response)
+    }
 
 
 def lambda_handler(event, context):
-    # print('event --- ', event)
+    print('event=', event)
+
     try:
         # Define the AWS access key ID and secret access key for the IAM user
         aws_access_key_id = 'AKIASBKR2UWDIH5HHM4W'
         aws_secret_access_key = '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'
 
-        # Create a session with the IAM user credentials
+        # Create a session with the IAM user credentials and connect to our table in dynamoDB
         session = boto3.Session(
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key
         )
+        dynamodb = session.resource('dynamodb')  # resource лучше чем client(т.к. не нужно указьівать тип значения)
+        table = dynamodb.Table(table_name)
 
-        # Create a DynamoDB client using the session
-        dynamodb = session.client('dynamodb')
+        # our crud logic
+        response = ""
 
-        # Define the table name
-        table_name = 'Users'
+        if event['rawPath'] == POST_RAW_PATH:
 
-        # Add the item to the table
-        user_id = event['queryStringParameters']['id']
-        user_name = event['queryStringParameters']['name']
+            # make clear dict from string
+            raw_body_string = event["body"]
+            body_string = raw_body_string.replace("\n", "").replace(" ", "").replace('\\"', '\"').replace("'", "\"")
 
-        response = dynamodb.get_item(
-            TableName=table_name,
-            Key={
-                'id': {'S': str(user_id)},
-                'name': {'S': str(user_name)}
-            }
-        )
-        # print("response=", response)
-        response_body = {
-            "id": str(response["Item"]["id"]),
-            "name": str(response["Item"]["name"]),
-            "status_method": "Active"
+            user_item = json.loads(body_string)
+            response = create_new_user(table, user_item)
 
-        }
-        return {
-            'statusCode': 200,
-            'body': json.dumps(response_body)
-        }
+        elif event['rawPath'] == GET_RAW_PATH:
+
+            user_id = event['queryStringParameters']['ID']
+
+            response = get_user_by_id(table, user_id)
+
+        return response
 
     except Exception as err:
         print(err)
