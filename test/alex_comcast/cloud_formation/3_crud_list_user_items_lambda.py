@@ -32,7 +32,7 @@ def get_user_by_id(table, user_id):
     except:
         return {
             'statusCode': 404,
-            'body': json.dumps("Not found. Check user ID")
+            'body': json.dumps("Not found object, check user ID")
         }
 
 
@@ -87,6 +87,7 @@ def create_new_user(table, user_item):
 
 
 def lambda_handler(event, context):
+    print("event=", event)
     try:
         # Create a session with the IAM user credentials and connect to our table in dynamoDB
         session = boto3.Session(
@@ -113,7 +114,6 @@ def lambda_handler(event, context):
 
             user_id = event['queryStringParameters']['ID']
             response = get_user_by_id(table, user_id)
-
             return {
                 'statusCode': 200,
                 'body': json.dumps(response)
@@ -129,7 +129,7 @@ def lambda_handler(event, context):
 
             return {
                 'statusCode': 201,
-                'body': response
+                'body': json.dumps(response)
             }
         elif event['rawPath'] == DELETE_RAW_PATH:
             delete_user_id = event['queryStringParameters']['ID']
@@ -138,13 +138,11 @@ def lambda_handler(event, context):
 
         elif event['rawPath'] == LIST_RAW_PATH:
             response = table.scan(Limit=LIMIT_LIST_ITEMS)
-            print('list_users=', response, type(response))
             return response
-
 
     except Exception as err:
         print(err)
         return {
-            'statusCode': 404,
+            'statusCode': 400,
             'body': json.dumps("<h1><font color=red>my custom Error!</font><br><br>")
         }
