@@ -1,0 +1,32 @@
+Resources:
+  WorkshopRole:  # we have a role
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        # здесь мьі не создаем
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  WorkshopFunction:  # we have an lambda func
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: "def handler(*args, **kwargs): return 200"
+      Role:
+        Fn::GetAtt:
+          - WorkshopRole
+          - Arn
+      FunctionName: WorkshopFunction
+      Handler: index.handler
+      Runtime: python3.6
+    DependsOn:
+      - WorkshopRole

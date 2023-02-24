@@ -1,0 +1,40 @@
+Parameters:
+  BucketNameParameter:
+    Type: String
+    Description: 'A bucket name to set.'
+  Environment:
+    Type: String
+    AllowedValues:   # useful to use in case with mapping, when we expect certain values - будет как дроп-бокс при деплое
+      - Dev
+      - Test
+      - Prod
+    Description: 'Select an environment.'
+
+Mappings:
+  # вьізоватся от тригерра  !FindInMap
+  # as "if" in python....if received parameter is....(DEV for example), so it will be that value... and so on...
+  EnvironmentToBucketSuffix:
+    Dev:
+      Suffix: 'this-is-dev'
+#      Some_add_param: 'qweqweqwewqqweqw'
+    Test:
+      Suffix: 'use-only-for-testing'
+    Prod:
+      Suffix: 'be-careful-it-is-production'
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      # !FindInMap need to provide a 3 values:
+      # - the name of map itself
+      # - the key of received parameter by !Ref
+      # - name of value entity. потому что может передавать больше одного   --->  Some_add_param: 'qweqweqwewqqweqw'
+      BucketName: !Join [ '-', [
+          !Ref BucketNameParameter, !FindInMap [
+              EnvironmentToBucketSuffix,
+              !Ref Environment,
+              Suffix
+          ]
+        ]
+      ]
