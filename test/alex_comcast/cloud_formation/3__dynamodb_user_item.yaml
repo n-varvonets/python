@@ -51,7 +51,7 @@ Resources:
         S3Key: my-function.zip
       Handler: index.handler
       Role: !GetAtt LambdaExecutionRole.Arn
-      Runtime: nodejs14.x
+      Runtime: python3.9
 
   # Create the IAM role for the Lambda function
   LambdaExecutionRole:

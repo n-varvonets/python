@@ -1,0 +1,19 @@
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: 'simple-workshop-bucket-101'
+
+Outputs:
+  BucketARN:
+    Description: 'The ARN of the bucket.'
+    Value: !GetAtt S3Bucket.Arn
+
+# можно получать парметрьі ресурса, после тог как они будут созданньі в cloudform
+# !GetAtt - возможньіе парметрьі прописаньі в документации cloudform к кажому сервису свой
+
+
+# in order to create a lambda func:
+#     - AT FIRST we have to create a role for permission on executing
+#     - after we create our lambda func
+#     - and attaching the role to the lambda func

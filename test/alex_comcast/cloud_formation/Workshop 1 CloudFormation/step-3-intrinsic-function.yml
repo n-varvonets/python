@@ -1,0 +1,20 @@
+Parameters:
+  BucketNameParameter:
+    Type: String
+    Description: 'A bucket name to set.'
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      # !Join, !Ref - єти Intrinsic function reference функции дают нам yaml - динамичность в статичном temlate.
+      # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html
+#      BucketName: !Ref BucketNameParameter
+      BucketName: !Join [ '-', [
+          !Ref BucketNameParameter, 'dummy', 'suffix'
+        ]
+      ]
+
+# !Ref - ссльілаетя на параметр
+# !Join - соеденяет елементьі спска в строку
+#     ' '.join([1, 2, "string my", [5, 6, 7]])
