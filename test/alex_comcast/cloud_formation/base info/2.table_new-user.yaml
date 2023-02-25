@@ -10,5 +10,6 @@ Resources:
         - AttributeName: "ID"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+
 #      StreamSpecification:  # указывает, что поток будет использоваться для захвата изменений в таблице.
 #        StreamViewType: "NEW_IMAGE"

@@ -1,5 +1,5 @@
 Resources:
-  WorkshopRole:  # we have a role
+  DynamoDBUserCRUDRole:  # we have a role
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -17,7 +17,7 @@ Resources:
             - - "arn:"
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-  WorkshopFunction:  # we have an lambda func
+  CRUDUsersLamdaFunction:  # we have an lambda func
     Type: AWS::Lambda::Function
     Properties:
       Code:
@@ -28,10 +28,10 @@ Resources:
       Role:
         # пример того, как мьі указьіваем роль к лямбда функции
         Fn::GetAtt:
-          - WorkshopRole
+          - DynamoDBUserCRUDRole
           - Arn
-      FunctionName: WorkshopFunction
+      FunctionName: CRUDUsersLamdaFunction
       Handler: index.handler
-      Runtime: python3.6
+      Runtime: python3.9
     DependsOn:
-      - WorkshopRole
+      - DynamoDBUserCRUDRole

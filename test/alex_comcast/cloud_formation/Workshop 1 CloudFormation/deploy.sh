@@ -3,3 +3,7 @@ aws cloudformation deploy \
   --template-file "$path" \
   --stack-name WorkshopStack \
   --capabilities CAPABILITY_IAM
+
+
+sam - для клауд формитион
+sam build
