@@ -13,87 +13,40 @@ Resources:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
       TableName: User_item
-      StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES
 
-  # Create the IAM policy for the Lambda function
-  LambdaDynamoDBExecutionRolePolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: LambdaDynamoDBExecutionRolePolicy
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Action:
-              - dynamodb:DescribeStream
-              - dynamodb:GetRecords
-              - dynamodb:GetShardIterator
-              - dynamodb:ListStreams
-              - logs:CreateLogGroup
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource:
-              # Описывает ресурс "Stream" для таблицы "User_item" в сервисе DynamoDB.
-              # Она задает ARN (Amazon Resource Name) для стрима таблицы,
-              # который будет использоваться в дальнейшем при создании триггера на лямбду.
-
-              # !Sub - это функция внутри CloudFormation, которая позволяет подставлять переменные и значения в строку.
-
-              - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/User_item/stream/*'
-
-  # Create the Lambda function
-  LogGroupUserItemLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      Code:
-        S3Bucket: my-bucket
-        S3Key: my-function.zip
-      Handler: index.handler
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Runtime: python3.9
-
-  # Create the IAM role for the Lambda function
-  LambdaExecutionRole:
+  DynamoDBUserCRUDRole:  # we have a role
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
         Statement:
-          - Effect: Allow
+          - Action: sts:AssumeRole
+            Effect: Allow
             Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Policies:
-        - PolicyName: DynamoDBStreamAccess
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
-              - Effect: Allow
-                Action:
-                  - dynamodb:GetItem
-                  - dynamodb:PutItem
-                Resource:
-                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/User_item'
-              - Effect: Allow
-                Action:
-                  - lambda:InvokeFunction
-                Resource: !GetAtt LogGroupUserItemLambda.Arn
-
-  # Create the stream trigger for the Lambda function
-  UserTableStreamTrigger:
-    Type: AWS::Lambda::EventSourceMapping
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        # здесь мьі не создавать policy or some action acceess, а просто обратимся к
+        # уже созданной роли с нужной  нам политикой -єто чуть продвинутьій лвл
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  CRUDUsersLamdaFunction:  # we have an lambda func
+    Type: AWS::Lambda::Function
     Properties:
-      BatchSize: 1
-      Enabled: true
-      EventSourceArn: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/User_item/stream/${UserTable.StreamArn}'
-      FunctionName: !GetAtt LogGroupUserItemLambda.Arn
-      StartingPosition: LATEST
+      Code:
+        # Есть несколько способов указать на код функции:
+        #   - s3 bucket
+        #   - как строка в ZipFile(клауд-форм создаст зип файл и загруить код в lambda func)
+        ZipFile: "def handler(*args, **kwargs): return 200"
+      Role:
+        # пример того, как мьі указьіваем роль к лямбда функции
+        Fn::GetAtt:
+          - DynamoDBUserCRUDRole
+          - Arn
+      FunctionName: CRUDUsersLamdaFunction
+#      Handler: index.handler
+      Runtime: python3.9
+    DependsOn:
+      - DynamoDBUserCRUDRole
