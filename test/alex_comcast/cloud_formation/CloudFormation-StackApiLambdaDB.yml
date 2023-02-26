@@ -1,4 +1,22 @@
 AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  LambdaFuncName:
+    Type: String
+    Default: crud-l-users
+  DynamoDBTableName:
+    Type: String
+    Default: users
+  APIName:
+    Type: String
+    Default: user_api-lambda-db
+  EnvironmentName:
+    Type: String
+    AllowedValues:
+      - Dev
+      - Test
+      - Prod
+
 Resources:
   LambdaFunction:
     Type: 'AWS::Lambda::Function'
@@ -10,6 +28,7 @@ Resources:
         Ref: LambdaFuncName
       Handler: 3_crud_list_user_items_lambda.lambda_handler
       Runtime: python3.9
+      Timeout: 30
       Role: !GetAtt IAMRole.Arn   # below we have a resource IAMRole after creating we will get his arn. Do we invoke it?
     DependsOn:
       - DynamoDBTable
@@ -49,26 +68,62 @@ Resources:
       PathPart: "users"
     DependsOn:
       - APIGatewayRestAPI
-  APIGatewayMethod:
-    Type: 'AWS::ApiGateway::Method'
+  UsersGetMethod:
+    Type: AWS::ApiGateway::Method
     Properties:
+      HttpMethod: "GET"
       RestApiId: !Ref APIGatewayRestAPI
       ResourceId: !Ref APIGatewayResource
-      HttpMethod: POST
-      AuthorizationType: NONE
-      MethodResponses:
-        - StatusCode: 200
+      AuthorizationType: "NONE"
       Integration:
-        Type: AWS
-        IntegrationResponses:
-          - StatusCode: 200
+        Type: AWS_PROXY
         IntegrationHttpMethod: POST
         Uri: !Sub
           - >-
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
           - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
-    DependsOn:
-      - APIGatewayResource
+  UsersPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: "POST"
+      RestApiId: !Ref APIGatewayRestAPI
+      ResourceId: !Ref APIGatewayResource
+      AuthorizationType: "NONE"
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
+          - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
+  UsersPutMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: "PUT"
+      RestApiId: !Ref APIGatewayRestAPI
+      ResourceId: !Ref APIGatewayResource
+      AuthorizationType: "NONE"
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
+          - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
+  UsersDeleteMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: "DELETE"
+      RestApiId: !Ref APIGatewayRestAPI
+      ResourceId: !Ref APIGatewayResource
+      AuthorizationType: "NONE"
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
+          - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
   APIGatewayDeployment:
     Type: 'AWS::ApiGateway::Deployment'
     Properties:
@@ -76,8 +131,10 @@ Resources:
       StageName:
         Ref: EnvironmentName
     DependsOn:
-      - APIGatewayMethod
-      - APIGatewayMethod
+      - UsersPostMethod
+      - UsersPostMethod
+      - UsersPutMethod
+      - UsersDeleteMethod
   APIGatewayPermission:
     # даем rest-api разрешение на вьізов lambda func
     Type: 'AWS::Lambda::Permission'
@@ -126,16 +183,3 @@ Resources:
                   - 'logs:CreateLogGroup'
                   - 'logs:PutLogEvents'
                 Resource: '*'
-Parameters:
-  LambdaFuncName:
-    Type: String
-    Default: Lambda_api-lambda-db
-  DynamoDBTableName:
-    Type: String
-    Default: Dynamo_api-lambda-db
-  APIName:
-    Type: String
-    Default: API_api-lambda-db
-  EnvironmentName:
-    Type: String
-    Default: Prod

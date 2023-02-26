@@ -9,7 +9,7 @@ DELETE_RAW_PATH = "/test/delete_user"
 POST_RAW_PATH = "/test/create-new-user"
 PUT_RAW_PATH = "/test/update-new-user"
 
-TABLE_NAME = 'new_users'
+TABLE_NAME = 'users'
 LIMIT_LIST_ITEMS = 1000  # by my logic I set max 1000 items per 1 req - for prevalence overload
 
 # Define the AWS access key ID and secret access key for the IAM user
