@@ -3,12 +3,6 @@ import json
 from datetime import datetime
 import uuid
 
-GET_RAW_PATH = "/test/get_user"
-LIST_RAW_PATH = "/test/list_users"
-DELETE_RAW_PATH = "/test/delete_user"
-POST_RAW_PATH = "/test/create-new-user"
-PUT_RAW_PATH = "/test/update-new-user"
-
 TABLE_NAME = 'users'
 LIMIT_LIST_ITEMS = 1000  # by my logic I set max 1000 items per 1 req - for prevalence overload
 
@@ -98,7 +92,7 @@ def lambda_handler(event, context):
         table = dynamodb.Table(TABLE_NAME)
 
         # our crud logic
-        if event['rawPath'] == POST_RAW_PATH:
+        if event['httpMethod'] == "POST":
 
             # make clear dict from string
             raw_body_string = event["body"]
@@ -110,7 +104,7 @@ def lambda_handler(event, context):
                 'statusCode': 201,
                 'body': json.dumps(response)
             }
-        elif event['rawPath'] == GET_RAW_PATH:
+        elif event['httpMethod'] == "GET" and event["queryStringParameters"] is not None:
 
             user_id = event['queryStringParameters']['ID']
             response = get_user_by_id(table, user_id)
@@ -118,7 +112,7 @@ def lambda_handler(event, context):
                 'statusCode': 200,
                 'body': json.dumps(response)
             }
-        elif event['rawPath'] == PUT_RAW_PATH:
+        elif event['httpMethod'] == "PUT":
 
             # make clear dict from string
             raw_body_string = event["body"]
@@ -131,12 +125,12 @@ def lambda_handler(event, context):
                 'statusCode': 201,
                 'body': json.dumps(response)
             }
-        elif event['rawPath'] == DELETE_RAW_PATH:
+        elif event['httpMethod'] == "DELETE":
             delete_user_id = event['queryStringParameters']['ID']
             delete_user(table, delete_user_id)
             return {'statusCode': 204}
 
-        elif event['rawPath'] == LIST_RAW_PATH:
+        elif event['httpMethod'] == "GET" and event["queryStringParameters"] is None:
             response = table.scan(Limit=LIMIT_LIST_ITEMS)
             return response
 

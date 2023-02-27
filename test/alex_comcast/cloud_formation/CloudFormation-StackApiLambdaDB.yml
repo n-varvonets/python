@@ -48,82 +48,133 @@ Resources:
         WriteCapacityUnits: '5'
     DependsOn:
       - IAMRole
+
   APIGatewayRestAPI:
     # создаем сам апи, как рест апи
-    Type: 'AWS::ApiGateway::RestApi'
+    Type: AWS::ApiGateway::RestApi
     Properties:
       Name:
         Ref: APIName
     DependsOn:
       - LambdaFunction
+
   APIGatewayResource:
     # теперь созданному апи назначем ресурс(нашу таблицу реста)
     Type: 'AWS::ApiGateway::Resource'
     Properties:
       # надо указать имя к которому привязьіваем таблицу as url: users/
       RestApiId: !Ref APIGatewayRestAPI
-      ParentId: !GetAtt
-        - APIGatewayRestAPI  # указьіваю имя ресурса - APIGatewayResource
-        - RootResourceId
+      ParentId: !GetAtt APIGatewayRestAPI.RootResourceId
+
       PathPart: "users"
     DependsOn:
       - APIGatewayRestAPI
-  UsersGetMethod:
+
+  APIGatewayResourceID:
+    # теперь созданному апи назначем ресурс(нашу таблицу реста)
+    Type: 'AWS::ApiGateway::Resource'
+    Properties:
+      # надо указать имя к которому привязьіваем таблицу as url: users/
+      RestApiId: !Ref APIGatewayRestAPI
+      ParentId: !GetAtt APIGatewayResource.ResourceId
+
+      PathPart: "{id}"
+    DependsOn:
+      - APIGatewayRestAPI
+
+  GetListUserMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      HttpMethod: "GET"
+      HttpMethod: GET
       RestApiId: !Ref APIGatewayRestAPI
       ResourceId: !Ref APIGatewayResource
-      AuthorizationType: "NONE"
+      AuthorizationType: NONE
+      RequestParameters:
+        method.request.path.id: true
       Integration:
+        IntegrationHttpMethod: GET
         Type: AWS_PROXY
-        IntegrationHttpMethod: POST
         Uri: !Sub
           - >-
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
           - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
-  UsersPostMethod:
+
+
+  CreateNewUserMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      HttpMethod: "POST"
+      HttpMethod: POST
       RestApiId: !Ref APIGatewayRestAPI
       ResourceId: !Ref APIGatewayResource
-      AuthorizationType: "NONE"
+      AuthorizationType: NONE
       Integration:
-        Type: AWS_PROXY
         IntegrationHttpMethod: POST
+        Type: AWS_PROXY
         Uri: !Sub
           - >-
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
           - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
-  UsersPutMethod:
+
+
+  GetUserMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      HttpMethod: "PUT"
+      HttpMethod: GET
       RestApiId: !Ref APIGatewayRestAPI
-      ResourceId: !Ref APIGatewayResource
-      AuthorizationType: "NONE"
+      ResourceId: !Ref APIGatewayResourceID
+      AuthorizationType: NONE
+      RequestParameters:
+        method.request.path.id: true
       Integration:
+        IntegrationHttpMethod: GET
         Type: AWS_PROXY
-        IntegrationHttpMethod: POST
         Uri: !Sub
           - >-
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
           - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
-  UsersDeleteMethod:
+        RequestParameters:
+          integration.request.path.id: "method.request.path.id"
+
+
+  UpdateUserMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      HttpMethod: "DELETE"
+      HttpMethod: PUT
       RestApiId: !Ref APIGatewayRestAPI
-      ResourceId: !Ref APIGatewayResource
-      AuthorizationType: "NONE"
+      ResourceId: !Ref APIGatewayResourceID
+      AuthorizationType: NONE
+      RequestParameters:
+        method.request.path.id: true
       Integration:
+        IntegrationHttpMethod: PUT
         Type: AWS_PROXY
-        IntegrationHttpMethod: POST
         Uri: !Sub
           - >-
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
           - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
+        RequestParameters:
+          integration.request.path.id: "method.request.path.id"
+
+
+  DeleteUserMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: DELETE
+      RestApiId: !Ref APIGatewayRestAPI
+      ResourceId: !Ref APIGatewayResourceID
+      AuthorizationType: NONE
+      RequestParameters:
+        method.request.path.id: true
+      Integration:
+        IntegrationHttpMethod: DELETE
+        Type: AWS_PROXY
+        Uri: !Sub
+          - >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
+          - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
+        RequestParameters:
+          integration.request.path.id: "method.request.path.id"
+
   APIGatewayDeployment:
     Type: 'AWS::ApiGateway::Deployment'
     Properties:
@@ -131,10 +182,12 @@ Resources:
       StageName:
         Ref: EnvironmentName
     DependsOn:
-      - UsersPostMethod
-      - UsersPostMethod
-      - UsersPutMethod
-      - UsersDeleteMethod
+      - GetListUserMethod
+      - GetUserMethod
+      - CreateNewUserMethod
+      - UpdateUserMethod
+      - DeleteUserMethod
+
   APIGatewayPermission:
     # даем rest-api разрешение на вьізов lambda func
     Type: 'AWS::Lambda::Permission'
@@ -144,6 +197,7 @@ Resources:
       Principal: apigateway.amazonaws.com
     DependsOn:
       - APIGatewayDeployment
+
   IAMRole:
     Type: 'AWS::IAM::Role'
     Properties:
