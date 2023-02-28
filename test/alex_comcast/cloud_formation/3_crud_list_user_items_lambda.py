@@ -2,6 +2,11 @@ import boto3
 import json
 from datetime import datetime
 import uuid
+from decimal import Decimal
+
+# mockdata
+# from crud_data_events import event_get_user as event
+
 
 TABLE_NAME = 'users'
 LIMIT_LIST_ITEMS = 1000  # by my logic I set max 1000 items per 1 req - for prevalence overload
@@ -9,6 +14,20 @@ LIMIT_LIST_ITEMS = 1000  # by my logic I set max 1000 items per 1 req - for prev
 # Define the AWS access key ID and secret access key for the IAM user
 aws_access_key_id = 'AKIASBKR2UWDIH5HHM4W'
 aws_secret_access_key = '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'
+
+
+def convert_decimals_to_floats(obj):
+    """
+    Recursively convert Decimal values to floats in a dictionary.
+    """
+    if isinstance(obj, dict):
+        return {k: convert_decimals_to_floats(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_decimals_to_floats(elem) for elem in obj]
+    elif isinstance(obj, Decimal):
+        return float(obj)
+    else:
+        return obj
 
 
 def get_user_by_id(table, user_id):
@@ -26,7 +45,7 @@ def get_user_by_id(table, user_id):
     except:
         return {
             'statusCode': 404,
-            'body': json.dumps("Not found object, check user ID")
+            'body': json.dumps("Object Not Found, check user ID or correctness the url")
         }
 
 
@@ -81,7 +100,7 @@ def create_new_user(table, user_item):
 
 
 def lambda_handler(event, context):
-    print("event=", event)
+    print('---evnt=', event)
     try:
         # Create a session with the IAM user credentials and connect to our table in dynamoDB
         session = boto3.Session(
@@ -104,15 +123,16 @@ def lambda_handler(event, context):
                 'statusCode': 201,
                 'body': json.dumps(response)
             }
-        elif event['httpMethod'] == "GET" and event["queryStringParameters"] is not None:
+        elif event['httpMethod'] == "GET" and event['path'] != '/users':
 
-            user_id = event['queryStringParameters']['ID']
+            user_id = event['pathParameters']['id']
             response = get_user_by_id(table, user_id)
             return {
                 'statusCode': 200,
                 'body': json.dumps(response)
             }
         elif event['httpMethod'] == "PUT":
+            print('--------- here in PUT -----------')
 
             # make clear dict from string
             raw_body_string = event["body"]
@@ -130,9 +150,14 @@ def lambda_handler(event, context):
             delete_user(table, delete_user_id)
             return {'statusCode': 204}
 
-        elif event['httpMethod'] == "GET" and event["queryStringParameters"] is None:
-            response = table.scan(Limit=LIMIT_LIST_ITEMS)
-            return response
+        elif event['httpMethod'] == "GET" and event['path'] == '/users':
+            raw_response_with_decimal = table.scan(Limit=LIMIT_LIST_ITEMS)
+            response = convert_decimals_to_floats(raw_response_with_decimal)
+            return {
+                'statusCode': 200,
+                'body': json.dumps(response)
+            }
+
 
     except Exception as err:
         print(err)
@@ -140,3 +165,5 @@ def lambda_handler(event, context):
             'statusCode': 400,
             'body': json.dumps("<h1><font color=red>my custom Error!</font><br><br>")
         }
+
+# lambda_handler(event, None)
