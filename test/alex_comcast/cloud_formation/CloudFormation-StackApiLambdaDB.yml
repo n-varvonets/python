@@ -89,16 +89,21 @@ Resources:
       RestApiId: !Ref APIGatewayRestAPI
       ResourceId: !Ref APIGatewayResource
       AuthorizationType: NONE
-      RequestParameters:
-        method.request.path.id: true
       Integration:
-        IntegrationHttpMethod: GET
+        # POST в качестве значения IntegrationHttpMethod для метода GET API Gateway, чтобы интегрировать его с Lambda-функцией.
+        # иначе при вьізове єтих методов просто не будет вьізваться lambda func
+        IntegrationHttpMethod: POST
         Type: AWS_PROXY
+        # При использовании типа интеграции AWS_PROXY , весь запрос, включая заголовки и тело запроса, будет передан в
+        # вашу Lambda функцию, и вы сможете полностью управлять процессом обработки запроса внутри функции.
+
+        # Тип интеграции AWS используется для интеграции с другими AWS сервисами, такими как AWS Elastic Beanstalk,
+        # AWS EC2 и другими. При использовании этого типа интеграции вы можете настроить запрос и ответ, используя модель данных,
+        # определенную внутри вашего API Gateway,
         Uri: !Sub
           - >-
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
           - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
-
 
   CreateNewUserMethod:
     Type: AWS::ApiGateway::Method
@@ -115,7 +120,6 @@ Resources:
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
           - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
 
-
   GetUserMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -123,17 +127,18 @@ Resources:
       RestApiId: !Ref APIGatewayRestAPI
       ResourceId: !Ref APIGatewayResourceID
       AuthorizationType: NONE
+      # method.request используется для указания параметров, которые API Gateway должен получить от клиента и передать
+      # в вашу Lambda функцию, а integration.request - для указания параметров, которые API Gateway должен передать
+      # в интеграцию HTTP после получения запроса от клиента.
       RequestParameters:
         method.request.path.id: true
       Integration:
-        IntegrationHttpMethod: GET
+        IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub
           - >-
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
           - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
-        RequestParameters:
-          integration.request.path.id: "method.request.path.id"
 
 
   UpdateUserMethod:
@@ -146,15 +151,12 @@ Resources:
       RequestParameters:
         method.request.path.id: true
       Integration:
-        IntegrationHttpMethod: PUT
+        IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub
           - >-
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
           - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
-        RequestParameters:
-          integration.request.path.id: "method.request.path.id"
-
 
   DeleteUserMethod:
     Type: AWS::ApiGateway::Method
@@ -166,14 +168,12 @@ Resources:
       RequestParameters:
         method.request.path.id: true
       Integration:
-        IntegrationHttpMethod: DELETE
+        IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub
           - >-
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
           - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
-        RequestParameters:
-          integration.request.path.id: "method.request.path.id"
 
   APIGatewayDeployment:
     Type: 'AWS::ApiGateway::Deployment'
@@ -237,3 +237,4 @@ Resources:
                   - 'logs:CreateLogGroup'
                   - 'logs:PutLogEvents'
                 Resource: '*'
+
