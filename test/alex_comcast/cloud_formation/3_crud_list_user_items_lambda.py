@@ -51,7 +51,6 @@ def get_user_by_id(table, user_id):
 def delete_user(table, user_id):
     key = {'ID': user_id}
     response = table.delete_item(Key=key)
-    print('del----', response)
     return
 
 
