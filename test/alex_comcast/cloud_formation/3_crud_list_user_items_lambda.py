@@ -37,7 +37,6 @@ def get_user_by_id(table, user_id):
         response = {
             "name": str(response["Item"]["ITEM"]["name"]),
             "age": str(response["Item"]["ITEM"]["age"]),
-            "status_method": "Active"
 
         }
         return response
@@ -51,7 +50,8 @@ def get_user_by_id(table, user_id):
 
 def delete_user(table, user_id):
     key = {'ID': user_id}
-    table.delete_item(Key=key)
+    response = table.delete_item(Key=key)
+    print('del----', response)
     return
 
 
@@ -66,13 +66,18 @@ def update_user_item(table, user_id, new_item):
         'ITEM': new_item
     }
 
-    table.put_item(Item=updated_user_item)
-    response = {
-        "requests_status": 'User was successfully updated',
-        "ITEM": updated_user_item
-    }
+    try:
+        table.put_item(Item=updated_user_item)
 
-    return response
+        response = {
+            "status_code": 200,
+            "Item": updated_user_item
+        }
+        return response
+
+    except Exception as e:
+        print('--- Method POST --- Error=', e, updated_user_item)
+        return {"status_code": 404}
 
 
 def create_new_user(table, user_item):
@@ -93,14 +98,12 @@ def create_new_user(table, user_item):
     response = {
         "entity_id": new_user_id,
         "name_user": user_item['name'],
-        "status_in_db": "was successfully created"
     }
 
     return response
 
 
 def lambda_handler(event, context):
-    print('---evnt=', event)
     try:
         # Create a session with the IAM user credentials and connect to our table in dynamoDB
         session = boto3.Session(
@@ -109,6 +112,7 @@ def lambda_handler(event, context):
         )
         dynamodb = session.resource('dynamodb')  # resource лучше чем client(т.к. не нужно указьівать тип значения)
         table = dynamodb.Table(TABLE_NAME)
+        current_time_executing_func = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         # our crud logic
         if event['httpMethod'] == "POST":
@@ -119,10 +123,15 @@ def lambda_handler(event, context):
 
             user_item = json.loads(body_string)
             response = create_new_user(table, user_item)
+
+            print("--- Method POST --- New user '" + response['name_user'] + "' with id=" + response[
+                "entity_id"] + " was created at " + current_time_executing_func)
+
             return {
                 'statusCode': 201,
                 'body': json.dumps(response)
             }
+
         elif event['httpMethod'] == "GET" and event['path'] != '/users':
 
             user_id = event['pathParameters']['id']
@@ -131,33 +140,52 @@ def lambda_handler(event, context):
                 'statusCode': 200,
                 'body': json.dumps(response)
             }
+
         elif event['httpMethod'] == "PUT":
-            print('--------- here in PUT -----------')
 
             # make clear dict from string
             raw_body_string = event["body"]
             body_string = raw_body_string.replace("\n", "").replace(" ", "").replace('\\"', '\"').replace("'", "\"")
             user_item = json.loads(body_string)
+            user_id = event["pathParameters"]["id"]
 
-            response = update_user_item(table, user_id=user_item['user_id'], new_item=user_item['NEW_ITEM'])
+            response = update_user_item(table, user_id=user_id, new_item=user_item['NEW_ITEM'])
+            if response['status_code'] == 200:
+                print(
+                    "--- Method PUT --- User with id=" + user_id + " was updated at " + current_time_executing_func + ". Current state of item: " + str(
+                        response["Item"]))
 
-            return {
-                'statusCode': 201,
-                'body': json.dumps(response)
-            }
+                return {
+                    'statusCode': 201,
+                    'body': json.dumps(response)
+                }
+            else:
+                return {
+                    'statusCode': response['status_code'],
+                    'body': json.dumps("Item was not found. Check passed id of item.")
+                }
+
         elif event['httpMethod'] == "DELETE":
-            delete_user_id = event['queryStringParameters']['ID']
+            delete_user_id = event["pathParameters"]["id"]
+            key = {'ID': delete_user_id}
+            deleted_user = table.get_item(Key=key)
+
             delete_user(table, delete_user_id)
+
+            print(
+                "--- Method DELETE --- User with id=" + delete_user_id + " was deleted at " + current_time_executing_func + ". Data deleted item: " + str(
+                    deleted_user))
+
             return {'statusCode': 204}
 
         elif event['httpMethod'] == "GET" and event['path'] == '/users':
             raw_response_with_decimal = table.scan(Limit=LIMIT_LIST_ITEMS)
             response = convert_decimals_to_floats(raw_response_with_decimal)
+
             return {
                 'statusCode': 200,
                 'body': json.dumps(response)
             }
-
 
     except Exception as err:
         print(err)
@@ -166,4 +194,3 @@ def lambda_handler(event, context):
             'body': json.dumps("<h1><font color=red>my custom Error!</font><br><br>")
         }
 
-# lambda_handler(event, None)
