@@ -41,13 +41,19 @@ Resources:
     Properties:
       FunctionName: # ref to param
         Ref: SNSFuncName
-      Role: !GetAtt IAMRole.Arn
+      Role: !GetAtt LambdaExecutionRole.Arn
       Code:
         S3Bucket: user-item-lambda-bucket
         S3Key: 3_sns.py.zip
       Handler: 3_sns.lambda_handler
       Runtime: python3.9
       Timeout: 30
+#      iamRoleStatements:
+#        - Effect: "Allow"
+#          Action:
+#            - "lambda:InvokeFunction"
+#            - "sns:Publish"
+#          Resource: !GetAtt MyTopic.Arn
     DependsOn:
       - MySubscription
 
@@ -76,6 +82,7 @@ Resources:
         Ref: APIName
     DependsOn:
       - LambdaFunction
+      - SNSTopicFunction
 
   APIGatewayResource:
     # теперь созданному апи назначем ресурс(нашу таблицу реста)
@@ -247,6 +254,17 @@ Resources:
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SNSTopicFuncNameArn}/invocations
           - SNSTopicFuncNameArn: !GetAtt SNSTopicFunction.Arn
 
+  MyLambdaPermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt SNSTopicFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${APIGatewayRestAPI}/*/GET/sent_user_sns/{id}
+
+    DependsOn:
+      - SNSTopicFunction
+
   APIGatewayDeployment:
     Type: 'AWS::ApiGateway::Deployment'
     Properties:
@@ -314,7 +332,23 @@ Resources:
                 Action:
                   - "sns:Publish"
                 Resource: '*'
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: '*'
 
-#                Resource: !GetAtt MyTopic.Arn
+  LambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: lambda-execution-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
 
 
