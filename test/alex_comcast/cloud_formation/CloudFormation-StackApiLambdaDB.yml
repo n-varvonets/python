@@ -4,6 +4,9 @@ Parameters:
   LambdaFuncName:
     Type: String
     Default: crud-l-users
+  SNSFuncName:
+    Type: String
+    Default: sns-lambda-func
   DynamoDBTableName:
     Type: String
     Default: users
@@ -32,6 +35,22 @@ Resources:
       Role: !GetAtt IAMRole.Arn   # below we have a resource IAMRole after creating we will get his arn. Do we invoke it?
     DependsOn:
       - DynamoDBTable
+
+  SNSTopicFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: # ref to param
+        Ref: SNSFuncName
+      Role: !GetAtt IAMRole.Arn
+      Code:
+        S3Bucket: user-item-lambda-bucket
+        S3Key: 3_sns.py.zip
+      Handler: 3_sns.lambda_handler
+      Runtime: python3.9
+      Timeout: 30
+    DependsOn:
+      - MySubscription
+
   DynamoDBTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
@@ -60,7 +79,7 @@ Resources:
 
   APIGatewayResource:
     # теперь созданному апи назначем ресурс(нашу таблицу реста)
-    Type: 'AWS::ApiGateway::Resource'
+    Type: AWS::ApiGateway::Resource
     Properties:
       # надо указать имя к которому привязьіваем таблицу as url: users/
       RestApiId: !Ref APIGatewayRestAPI
@@ -77,10 +96,46 @@ Resources:
       # надо указать имя к которому привязьіваем таблицу as url: users/
       RestApiId: !Ref APIGatewayRestAPI
       ParentId: !GetAtt APIGatewayResource.ResourceId
-
       PathPart: "{id}"
     DependsOn:
       - APIGatewayRestAPI
+
+  APIGatewaySNSResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref APIGatewayRestAPI
+      ParentId: !GetAtt APIGatewayRestAPI.RootResourceId
+
+      PathPart: "sent_user_sns"
+    DependsOn:
+      - APIGatewayRestAPI
+
+  APIGatewaySNSResourceID:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref APIGatewayRestAPI
+      ParentId: !GetAtt APIGatewaySNSResource.ResourceId
+      PathPart: "{id}"
+    DependsOn:
+      - APIGatewayRestAPI
+
+  MyTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "SNS-users-topic"  # warn: без пробелов
+    DependsOn:
+      - IAMRole
+
+  MySubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: email
+      TopicArn: !Ref MyTopic
+#      Endpoint: !Join [ ",", [ "nickolay.varvonets@gmail.com", "avarvonets@gmail.com"] ]  # может принять только тип str
+      Endpoint: "nickolay.varvonets@gmail.com"
+
+    DependsOn:
+      - MyTopic
 
   GetListUserMethod:
     Type: AWS::ApiGateway::Method
@@ -175,6 +230,23 @@ Resources:
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
           - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
 
+  SNSUserMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      RestApiId: !Ref APIGatewayRestAPI
+      ResourceId: !Ref APIGatewaySNSResourceID
+      AuthorizationType: NONE
+      RequestParameters:
+        method.request.path.id: true
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SNSTopicFuncNameArn}/invocations
+          - SNSTopicFuncNameArn: !GetAtt SNSTopicFunction.Arn
+
   APIGatewayDeployment:
     Type: 'AWS::ApiGateway::Deployment'
     Properties:
@@ -187,6 +259,7 @@ Resources:
       - CreateNewUserMethod
       - UpdateUserMethod
       - DeleteUserMethod
+      - SNSUserMethod
 
   APIGatewayPermission:
     # даем rest-api разрешение на вьізов lambda func
@@ -214,7 +287,7 @@ Resources:
               - 'sts:AssumeRole'
       Path: /
       Policies:
-        - PolicyName: Policy_api-lambda-db
+        - PolicyName: Policy_api-crud-sns-db
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -237,4 +310,11 @@ Resources:
                   - 'logs:CreateLogGroup'
                   - 'logs:PutLogEvents'
                 Resource: '*'
+              - Effect: Allow
+                Action:
+                  - "sns:Publish"
+                Resource: '*'
+
+#                Resource: !GetAtt MyTopic.Arn
+
 
