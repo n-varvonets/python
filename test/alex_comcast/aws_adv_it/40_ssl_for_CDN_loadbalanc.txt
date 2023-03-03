@@ -1,0 +1,16 @@
+domain : golden-nick.com
+
+https://ibb.co/KXxLzK3
+
+SubDomain для ElasticBalancer : loadbalancer.golden-nick.com
+    Последовательность:
+        1) клиент делает с браузера  https запрос на route53(переводит из строки домена в ip цифрьі)
+        2) Запрос c Rout53 в https виде приходит на LoadBalancer на нашем сервере,
+        3) с LoadBalancer уже по http направляет запросьі на наши серверьі( для єтого внутри нашей приложении нужносделать SSL termination)
+
+SubDomain для CloudFront : cdn.golden-nick.com
+    Последовательность:
+        1) клиент делает с браузера  https запрос на route53(переводит из строки домена в ip цифрьі)
+        2)subdomain будет указьівать на cdn и запрос перенапрится к нему
+        3) Запрос c Rout53 в https виде приходит на CDN  и ввозращает так же секьюрно ответ
+

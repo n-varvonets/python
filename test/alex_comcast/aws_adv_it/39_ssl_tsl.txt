@@ -1,0 +1,21 @@
+SSL = Secure Socket Layer
+TLS = Transport Layer Security
+
+
+Сертифиак покупается на 1 год+ и ним мьі защищаем соедение клиента с сервером, шифруя передачу данньіх
+
+Сертификат можно купить на:
+     - определльій домен www.golden-nick.com
+     - или Wildcard : включает в себя доменьі + поддоьменьі( www.*.golden-nick.com:
+                                                                    www.dev.golden-nick.com
+                                                                    www.prod.ca-central-1.golden-nick.com)
+
+В целом єто стоит норм денег, но amazon дает ssl - бесплатно(Платим только за ресурсьі, которьіе используем), НО с  1им ограничением:
+    СЕРТИФИКАТ В АМАЗОНЕ МОЖНО ПРИЄТАЧИТЬ только к
+        1) Elastic LoadBalacing
+        2) CloudFront
+        3) ElasticBeanstalk(єтот серис всегда использует LoadBalacing(п.1))
+        4) API Gateway : вообще понтьі по стоиомости
+        5) Cloudformation
+
+сертификат может бьіть создан только в AZ - N.Virginia  (проче через mail подтверждение чем через dns)
