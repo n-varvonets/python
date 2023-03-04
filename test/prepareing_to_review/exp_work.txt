@@ -1,0 +1,29 @@
+Selenium - это популярный инструмент, используемый для автоматизации тестирования веб-приложений.
+Он позволяет разработчикам имитировать взаимодействие пользователя с приложением и проверять его функциональность.
+PyTest - это фреймворк для тестирования на Python, который предоставляет мощные функции для автоматизации тестирования.
+ Он помогает разработчикам более эффективно и эффективно писать и запускать тесты.
+
+Шаблон Page Object Pattern - это паттерн проектирования, который часто используется в автоматизированном тестировании с помощью Selenium.
+Он предполагает создание отдельного класса для каждой страницы веб-приложения, который содержит все необходимые
+действия и методы для взаимодействия с этой страницей.
+Такой подход улучшает поддерживаемость и масштабируемость кода тестирования,
+так как изменения в приложении могут быть легко отражены в соответствующем классе страницы.
+
+
+
+- Worked on the automation testing of a web application using PyTest and Selenium WebDriver as my primary tech stack.
+- I applied the Page Object Pattern design to structure my test code, making it more readable and maintainable.
+- In writing tests, I utilized assert functions, fixtures, parameterization, markers, and mock testing.
+- For test reporting, including errors, screenshots, and performance, I used the Allure library.(Для вывода информации о тестах, включая ошибки, скриншоты и производительность, я использовал библиотеку Allure.)
+
+
+Mock-тестирование позволяет проверять работу кода, использующего внешние ресурсы, без настоящих вызовов этих ресурсов.
+Функция assert позволяет проверять ожидаемые результаты тестов.
+Функция fixture используется для создания и настройки объектов, используемых в тестах.
+Параметризация позволяет запускать тесты с различными наборами входных данных.
+Маркировки используются для группировки и запуска определенных тестов или групп тестов.
+Mock testing allows verifying the functionality of code that uses external resources without actually invoking those resources.
+The assert function allows checking the expected results of tests.
+The fixture function is used to create and set up objects used in tests.
+Parameterization allows running tests with different sets of input data.
+Markers are used to group and run specific tests or groups of tests.
