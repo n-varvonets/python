@@ -16,9 +16,12 @@ Parameters:
   EnvironmentName:
     Type: String
     Default: Prod
-  CertificateArnParameter:
+#  AcmCertificateArn:
+#    Type: String
+#    Default: arn:aws:acm:ca-central-1:140294923654:certificate/92b957f6-6724-4ea6-9963-0dda72cb6c1d
+  DNSHostedZoneId:
     Type: String
-    Default: arn:aws:acm:us-east-1:140294923654:certificate/16ec5b35-3f32-492b-8b9b-d570571f1eaa
+    Default: Z07116451MHGEO5I52MAQ
   DomainName:
     Type: String
     Default: bumblee-nick.net
@@ -100,7 +103,7 @@ Resources:
     Properties:
       RestApiId: !Ref APIGatewayRestAPI
       ParentId: !GetAtt APIGatewayRestAPI.RootResourceId
-      PathPart: "users"
+      PathPart: !Ref DynamoDBTableName
     DependsOn:
       - APIGatewayRestAPI
 
@@ -274,8 +277,7 @@ Resources:
     Type: 'AWS::ApiGateway::Deployment'
     Properties:
       RestApiId: !Ref APIGatewayRestAPI
-      StageName:
-        Ref: EnvironmentName
+      StageName: !Ref EnvironmentName
     DependsOn:
       - GetListUserMethod
       - GetUserMethod
@@ -358,49 +360,75 @@ Resources:
 # --------------------------------------------------------------
 
   ApiGatewayDomainName:
+    # Определяем DNS-имя
     Type: AWS::ApiGateway::DomainName
     Properties:
-      CertificateArn: !Ref CertificateArnParameter
+      # Если вы используете кастомный домен и хотите настроить HTTPS, вы должны указать свойство CertificateArn.
+      # Если вы используете региональный API Gateway, вы можете использовать свойство RegionalCertificateArn для настройки HTTPS.
+      # Если вы хотите настроить HTTPS для кастомного домена и регионального API Gateway, вам необходимо указать оба свойства.
+
+      # Если вы планируете использовать AWS::ApiGateway::DomainName с REGIONAL типом конфигурации, вам не нужно указывать CertificateArn,
+      # так как региональные сертификаты используются по умолчанию. Вам нужно только указать RegionalCertificateArn в качестве ARN вашего сертификата.
+      # CertificateArn: !Ref AwsAcmCertificate
+      RegionalCertificateArn: !Ref AwsAcmCertificate
+
       DomainName: !Ref DomainName
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+    DependsOn:
+      - AwsAcmCertificate
 
   ApiGatewayBasePathMapping:
-    # ApiGatewayBasePathMapping - это ресурс в AWS CloudFormation, который связывает домен с путем в вашем API Gateway.
-    #Он позволяет клиентам использовать доменное имя вместо адреса API Gateway при обращении к вашему API.
-
-    #Например, если вы связали ваше доменное имя example.com с вашим API Gateway, а затем создали ApiGatewayBasePathMapping с путем /myapi,
-    #клиенты могут обращаться к вашему API по адресу https://example.com/myapi.
-
-    #Таким образом, ApiGatewayBasePathMapping помогает упростить доступ к вашему API и сделать его более удобным для конечных пользователей.
+    # Определяем путь, который будет связан с DNS-именем
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
-      DomainName: !Ref ApiGatewayDomainName
+      DomainName: !Ref ApiGatewayDomainName  # подставляем наш ресурс (имя dns)
       RestApiId: !Ref APIGatewayRestAPI
-      Stage:
-        Ref: EnvironmentName
+#      Stage: !Ref EnvironmentName
+      BasePath: !Ref DynamoDBTableName
 
-#  MyCertificate:
-#    Type: AWS::CertificateManager::Certificate
+    DependsOn:
+      - ApiGatewayDomainName
+
+  ApiGatewayCnameRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: 'bumblee-nick.net.' # имя DNS-зоны
+      Name: '*.bumblee-nick.net.' # имя CNAME-записи
+      Type: CNAME
+      TTL: 300 # время жизни записи в секундах
+      ResourceRecords:
+        - !Join [ '', [ 'execute-api.', !Ref 'AWS::Region', '.amazonaws.com' ] ] # цель CNAME-записи
+    DependsOn:
+      - AwsAcmCertificate
+#  DnsRecord:
+#    Type: AWS::Route53::RecordSetGroup
 #    Properties:
-#      CertificateArn: !Ref CertificateArnParameter
+#      HostedZoneId: !Ref DNSHostedZoneId
+#      RecordSets:
+#        - Name: !Ref DomainName
+#          Type: A
+#          AliasTarget:
+#            DNSName: !GetAtt ApiGatewayDomainName.RegionalDomainName
+#            HostedZoneId: !Ref DNSHostedZoneId
+#        - Name: '*.bumblee-nick.net.'
+#          Type: A
+#          AliasTarget:
+#            DNSName: !GetAtt ApiGatewayDomainName.RegionalDomainName
+#            HostedZoneId: !Ref DNSHostedZoneId
+#    DependsOn:
+#      - AwsAcmCertificate
 
-#  CertificateValidationRecordSet:
-#    Type: "AWS::Route53::RecordSet"
-    # Это блок определения записи DNS, которая нужна для подтверждения владения доменным именем при запросе SSL-сертификата
-    # через сервис Amazon Certificate Manager (ACM). Здесь задаются следующие свойства.
 
-    # Name - имя записи, которая должна быть создана в DNS-зоне для домена.
-    # Type - тип записи, в данном случае это CNAME (каноническое имя), которое позволяет создать альтернативное имя для существующего DNS-имени.
-    # TTL - время жизни записи в секундах. Задается значение 300 секунд (5 минут).
-    # ResourceRecords - список записей ресурсов, которые должны быть добавлены в DNS-запись. В данном случае используется значение !GetAtt Certificate.DomainValidationOptions.0.ResourceRecord.Value, которое берется из ACM-сертификата и содержит значение, которое нужно добавить в DNS-запись.
-    # HostedZoneId - идентификатор DNS-зоны, в которой нужно создать запись. Задается значение !Ref HostedZoneId, которое берется из параметров шаблона CloudFormation и указывает на ID зоны, в которой нужно создать запись.
-
-    # Этот блок определяет запись DNS, которая будет создана в зоне для домена, чтобы подтвердить владение им.
-    # После создания записи Amazon ACM может проверить ее и выдать SSL-сертификат для использования с доменом.
-#    Properties:
-#      Name: !Join [ ".", [ "_acme-challenge", !Ref DomainName ] ]
-#      Type: CNAME
-#      TTL: 300
-#      ResourceRecords:
-#        - !GetAtt Certificate.DomainValidationOptions.0.ResourceRecord.Value
-#      HostedZoneId: !Ref HostedZoneId
+  AwsAcmCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: bumblee-nick.net
+      DomainValidationOptions:
+        -   DomainName: bumblee-nick.net
+            HostedZoneId:  Z07116451MHGEO5I52MAQ
+      SubjectAlternativeNames:
+        - "*.bumblee-nick.net"
+      ValidationMethod: DNS
 
