@@ -22,9 +22,9 @@ Parameters:
   DNSHostedZoneId:
     Type: String
     Default: Z07116451MHGEO5I52MAQ
-  DomainName:
+  MYAPIDomainName:
     Type: String
-    Default: bumblee-nick.net
+    Default: users-api.bumblee-nick.net
 
 #    AllowedValues:
 #      - Dev
@@ -95,7 +95,7 @@ Resources:
         Ref: APIName
     DependsOn:
       - LambdaFunction
-      - SNSTopicFunction
+#      - SNSTopicFunction
 
   APIGatewayResource:
     # теперь созданному апи назначем ресурс(нашу таблицу реста as url: users/)
@@ -372,12 +372,36 @@ Resources:
       # CertificateArn: !Ref AwsAcmCertificate
       RegionalCertificateArn: !Ref AwsAcmCertificate
 
-      DomainName: !Ref DomainName
+      DomainName: !Ref MYAPIDomainName
       EndpointConfiguration:
         Types:
+          # REGIONAL используется почти всегда, кроме кеширования в CloudFront
           - REGIONAL
+      SecurityPolicy: TLS_1_2
+
     DependsOn:
       - AwsAcmCertificate
+
+  AwsAcmCertificate:
+    # нужно создать сертификат и потом прикрепить его имени домена как алиас на зашифровку данних по url
+    # важно:
+    #       доманное имя созданного ресурса должна совпадать с переданньм сюда доменньім именем
+    #       по умолчанию сертификат, созданный с помощью AWS::CertificateManager::Certificate, является публичным
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      # Отличие между DomainName и SubjectAlternativeNames заключается в том, что DomainName определяет основное доменное имя,
+      # которое должно быть включено в сертификат, в то время как SubjectAlternativeNames позволяют добавлять дополнительные
+      # доменные имена в сертификат. DomainValidationOptions в свою очередь используется для проверки владения доменными именами,
+      # указанными в DomainName и SubjectAlternativeNames.
+      DomainName: !Ref MYAPIDomainName
+      DomainValidationOptions:
+        # required. Он содержит информацию о доменных именах, для которых необходимо провести проверку владения перед выдачей сертификата.
+        - DomainName: !Ref MYAPIDomainName
+          HostedZoneId: !Ref DNSHostedZoneId
+#        SubjectAlternativeNames:
+#          - "*.bumblee-nick.net"
+      ValidationMethod: DNS
+
 
   ApiGatewayBasePathMapping:
     # Определяем путь, который будет связан с DNS-именем
@@ -385,50 +409,43 @@ Resources:
     Properties:
       DomainName: !Ref ApiGatewayDomainName  # подставляем наш ресурс (имя dns)
       RestApiId: !Ref APIGatewayRestAPI
-#      Stage: !Ref EnvironmentName
-      BasePath: !Ref DynamoDBTableName
-
+      Stage: !Ref EnvironmentName
     DependsOn:
       - ApiGatewayDomainName
 
-  ApiGatewayCnameRecord:
-    Type: AWS::Route53::RecordSet
-    Properties:
-      HostedZoneName: 'bumblee-nick.net.' # имя DNS-зоны
-      Name: '*.bumblee-nick.net.' # имя CNAME-записи
-      Type: CNAME
-      TTL: 300 # время жизни записи в секундах
-      ResourceRecords:
-        - !Join [ '', [ 'execute-api.', !Ref 'AWS::Region', '.amazonaws.com' ] ] # цель CNAME-записи
-    DependsOn:
-      - AwsAcmCertificate
-#  DnsRecord:
-#    Type: AWS::Route53::RecordSetGroup
-#    Properties:
-#      HostedZoneId: !Ref DNSHostedZoneId
-#      RecordSets:
-#        - Name: !Ref DomainName
-#          Type: A
-#          AliasTarget:
-#            DNSName: !GetAtt ApiGatewayDomainName.RegionalDomainName
-#            HostedZoneId: !Ref DNSHostedZoneId
-#        - Name: '*.bumblee-nick.net.'
-#          Type: A
-#          AliasTarget:
-#            DNSName: !GetAtt ApiGatewayDomainName.RegionalDomainName
-#            HostedZoneId: !Ref DNSHostedZoneId
-#    DependsOn:
-#      - AwsAcmCertificate
+  DNSRecordSetGroup:
+    # бьівает подтверждение через mail, где єто все автоматом, а есть ерез днс(для єтого нужно сделать запись(record) в Route53,
+    # где ися домен будет ссьілаться на сертифат только что созданньій)
 
+    # первая запись - мьі говорим aws что мьі владельцьі єтого домена dns
+    #   - т.е. нужно добавить CNAME record(name(_32adfg.test.example.com) and his value(_123,asdasdas,acm-validations,aws,)) в роут53
+    Type: AWS::Route53::RecordSetGroup
 
-  AwsAcmCertificate:
-    Type: AWS::CertificateManager::Certificate
     Properties:
-      DomainName: bumblee-nick.net
-      DomainValidationOptions:
-        -   DomainName: bumblee-nick.net
-            HostedZoneId:  Z07116451MHGEO5I52MAQ
-      SubjectAlternativeNames:
-        - "*.bumblee-nick.net"
-      ValidationMethod: DNS
+      HostedZoneId: !Ref DNSHostedZoneId
+      RecordSets:
+#        - Name: !Join [ '', [ !Ref 'Ec2Instance', ., !Ref 'AWS::Region', ., !Ref 'HostedZone', . ] ]
+        - Name: !Join [ "", [ !Ref "AwsAcmCertificate", ".", !Ref "MYAPIDomainName", "." ] ]
+          Type: CNAME
+          TTL: 300
+          ResourceRecords:
+            - !Select [ 0, !Split [ ".", !Select [ 1, !Split [ "/", !Ref AwsAcmCertificate ] ] ] ]
+            # зачем нужньі рекордсетьі? для того что бьі обьеденять созданньій доменн(его алисасьі) с сертификатом
+            # https://ibb.co/LR60wNZ
+            # https://ibb.co/LR60wNZ
+            # HostedZoneId : Z8VLZEXAMPLE
+            #      Name: test.example.com
+            #      ResourceRecords:
+            #       - 192.0.2.99
+
+#        - Name: "{users-api.bumblee-nick.net}."
+#        - Name: !GetAtt ApiGatewayDomainName
+#          Type: CNAME
+#          TTL: "60"
+#          ResourceRecords:
+#            - !GetAtt ApiGatewayDomainName.RegionalDomainName
+      DependsOn:
+        - ApiGatewayDomainName
+        - AwsAcmCertificate
+
 
