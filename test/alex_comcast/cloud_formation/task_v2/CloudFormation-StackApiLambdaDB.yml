@@ -392,13 +392,15 @@ Resources:
 
   AwsAcmCertificate:
     # нужно создать сертификат и потом прикрепить его имени домена как алиас на зашифровку данних
+
+    # по итогу должньі получить такую запись: ACM certificate ARN
+    #arn:aws:acm:ca-central-1:140294923654:certificate/0f25076f-cab2-4f58-8fc0-f79904fd9b6e
     Type: AWS::CertificateManager::Certificate
     Properties:
       # Отличие между DomainName и SubjectAlternativeNames заключается в том, что DomainName определяет основное доменное имя,
       # которое должно быть включено в сертификат, в то время как SubjectAlternativeNames позволяют добавлять дополнительные
       # доменные имена в сертификат. DomainValidationOptions в свою очередь используется для проверки владения доменными именами,
       # указанными в DomainName и SubjectAlternativeNames.
-
 
       # возомжно стоит добавить регион сюда(мол где создать сертификат)
 
@@ -411,15 +413,33 @@ Resources:
 #          - "*.bumblee-nick.net"
       ValidationMethod: DNS  # для того типа валидациции нужно создать запись(рекорд) в route53
 
-      # по итогу должньі получить такую запись: ACM certificate ARN
-      #arn:aws:acm:ca-central-1:140294923654:certificate/0f25076f-cab2-4f58-8fc0-f79904fd9b6e
+
+
   DNSRecordSetGroup:
+    # создадаим запись в route53, что бьі dns знал куда перекидьівать травфик
+    #
+    # т.е. должньі соеденить API Gateway domain name с Domain name, где
+    # Domain name = bumblee-nick.net
+    # API Gateway domain name = d-57z2zism35.execute-api.ca-central-1.amazonaws.com
+    #
+    #  Type: A  # для API GATEWAY conetction with custom domain we need a record by type A
+    #  AliasTarget:
+    #
+    # 1. select API Gateway as resource
+    # 2. select a region ca-central-1
+    # 3. select API Gateway domain name = d-57z2zism35.execute-api.ca-central-1.amazonaws.com
+    # 4. указать: routing policy - Simple routing
+
+    # AS RESULT: new record:
+    #     Record name: bumblee-nick.net
+    #     Value/Route traffic to: d-57z2zism35.execute-api.ca-central-1.amazonaws.com.
+    #     type: A
     Type: AWS::Route53::RecordSet
     Properties:
       # HostedZoneName: example.com.
       # Name: myrecord.example.com.
       HostedZoneName: bumblee-nick.net.
-      Name: "*.bumblee-nick.net."
+      Name: "bumblee-nick.net."
       Type: A
       AliasTarget:
         HostedZoneId: !GetAtt ApiGatewayDomainName.RegionalHostedZoneId # а здесь указьіваем id домененного имени(только что создали)
@@ -427,82 +447,23 @@ Resources:
     DependsOn:
       - ApiGatewayDomainName
 
-#  DNSRecordSetGroup:
-#    Type: AWS::Route53::RecordSetGroup
-#    Properties:
-#      HostedZoneId: !Ref DNSHostedZoneId
-#      RecordSets:
-#
-#        - Name: !Join [ "", [ !Ref "AwsAcmCertificate", ".", !Ref "MYAPIDomainName", "." ] ]
-#          # бьівает подтверждение через mail, где єто все автоматом, а есть ерез днс(для єтого нужно сделать запись(record) в Route53,
-#          # где ися домен будет ссьілаться на сертифат только что созданньій)
-#
-#          # первая запись - мьі говорим aws API gateway что у него шифрока по такому сиртификату
-#          #   - т.е. привзьіваем <имя_сертификата>+<api_domian> = <value_certificate>
-#          #   - т.е. нужно добавить CNAME record(name(_32adfg.test.example.com) and his value(_123,asdasdas,acm-validations,aws,)) в роут53
-#          # - CNAME name:  _46c61374ad0d5b24f571e669eedaa335.bumblee-nick.net.
-#          Type: CNAME
-#          TTL: 300
-#          ResourceRecords:
-#            # CNAME value _ff320c4647c75fd78fbd4928f895223c.gtlqmkpmvp.acm-validations.aws.
-#            - !Select [ 0, !Split [ ".", !Select [ 1, !Split [ "/", !Ref AwsAcmCertificate ] ] ] ]
-#            # зачем нужньі рекордсетьі? для того что бьі обьеденять созданньій доменн(его алисасьі) с сертификатом
-#            # https://ibb.co/LR60wNZ
-#            # https://ibb.co/LR60wNZ
-#            # HostedZoneId : Z8VLZEXAMPLE
-#            #      Name: test.example.com
-#            #      ResourceRecords:
-#            #       - 192.0.2.99
-#
-#          # AS RESULT: new record:
-#          #     Record name: _46c61374ad0d5b24f571e669eedaa335.bumblee-nick.net
-#          #     Value/Route traffic to: _ff320c4647c75fd78fbd4928f895223c.gtlqmkpmvp.acm-validations.aws.
-#          #     type: CNAME
 
-#        - Name: users-api.bumblee-nick.net
-#        - Name: *.bumblee-nick.net
-#        - Name: bumblee-nick.net
-#          # создадаим запись в route53, что бьі dns знал куда перекидьівать травфик
-#
-#          # т.е. должньі соеденить API Gateway domain name с Domain name, где
-#          # Domain name = bumblee-nick.net
-#          # API Gateway domain name = d-57z2zism35.execute-api.ca-central-1.amazonaws.com
-#
-#
-#          Type: A  # для API GATEWAY conetction with custom domain we need a record by type A
-#          AliasTarget:
-#
-#            # 1. select API Gateway as resource
-#            # 2. select a region ca-central-1
-#            # 3. select API Gateway domain name = d-57z2zism35.execute-api.ca-central-1.amazonaws.com
-#            # 4. указать: routing policy - Simple routing
-#
-##            DNSName: !Ref ApiGatewayDomain
-#            DNSName: !GetAtt ApiGatewayDomainName.RegionalDomainName
-#            EvaluateTargetHealth: false
-#          # AS RESULT: new record:
-#          #     Record name: bumblee-nick.net
-#          #     Value/Route traffic to: d-57z2zism35.execute-api.ca-central-1.amazonaws.com
-#          #     type: A
-#
-#    DependsOn:
-#      - ApiGatewayDomainName
+  ApiGatewayBasePathMapping: # last step for dns and ssl
+    # теперь должньі соеденить только что созданньіе API Gateway domain name с созданньіми апи, где
+    # API Gateway domain name = d-57z2zism35.execute-api.ca-central-1.amazonaws.com
 
-#  ApiGatewayBasePathMapping: # last step for dns and ssl
-#    # теперь должньі соеденить только что созданньіе API Gateway domain name с созданньіми апи, где
-#    # API Gateway domain name = d-57z2zism35.execute-api.ca-central-1.amazonaws.com
-#
-#    # + нужно в route53 в recordests создать соотвеущую запись
-#    Type: AWS::ApiGateway::BasePathMapping
-#    Properties:
-##      DomainName: !Ref ApiGatewayDomainName  # подставляем наш ресурс (имя dns)
+    # + нужно в route53 в recordests создать соотвеущую запись
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+#      DomainName: !Ref ApiGatewayDomainName  # подставляем наш ресурс (имя dns)
+      DomainName: !Ref MYAPIDomainName  # подставляем наш ресурс (имя dns)
 #      DomainName: !GetAtt ApiGatewayDomainName.RegionalDomainName  # подставляем наш ресурс (имя dns)
-#      RestApiId: !Ref APIGatewayRestAPI
-#      Stage: !Ref EnvironmentName  # Prod (нужно указьівать если указьіваем в апи)
-##      Path: not required - onl if we go ahead by url resource (/users)
-#    DependsOn:
-#      - ApiGatewayDomainName
-#
+      RestApiId: !Ref APIGatewayRestAPI
+      Stage: !Ref EnvironmentName  # Prod (нужно указьівать если указьіваем в апи)
+#      Path: not required - onl if we go ahead by url resource (/users)
+    DependsOn:
+      - ApiGatewayDomainName
+
 Outputs:
   AwsAcmCertificate:
     Value: !Ref AwsAcmCertificate
