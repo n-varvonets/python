@@ -1,5 +1,8 @@
 AWSTemplateFormatVersion: 2010-09-09
 
+# sam deploy --template-file CloudFormation-StackApiLambdaDB.yml --stack-name crud-rest-sns-dynanamodb-stack --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
+
+
 Parameters:
   LambdaFuncName:
     Type: String
@@ -20,11 +23,8 @@ Parameters:
     Type: String
     Default: Z07116451MHGEO5I52MAQ
   DNSHostedZoneName:
-    Type: String
-    Default: bumblee-nick.net
   MYAPIDomainName:
     Type: String
-#    Default: users-api.bumblee-nick.net
     Default: bumblee-nick.net
 
 #    AllowedValues:
@@ -32,7 +32,6 @@ Parameters:
 #      - Test
 #      - Prod
 
-# sam deploy --template-file CloudFormation-StackApiLambdaDB.yml --stack-name crud-rest-sns-dynanamodb-stack --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
 
 Resources:
   LambdaFunction:

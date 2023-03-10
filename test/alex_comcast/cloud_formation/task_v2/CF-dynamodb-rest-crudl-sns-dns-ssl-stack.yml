@@ -1,0 +1,410 @@
+AWSTemplateFormatVersion: 2010-09-09
+# sam deploy --template-file CloudFormation-StackApiLambdaDB.yml --stack-name crud-rest-sns-dynanamodb-stack --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
+
+Parameters:
+  DynamoDBTableName:
+    Type: String
+    Default: users
+  EnvironmentName:
+    Type: String
+    AllowedValues:
+      - dev
+      - test
+      - prod
+    Default: prod
+  DNSHostedZoneId:
+    Type: String
+    Default: Z07116451MHGEO5I52MAQ
+  MYAPIDomainName:
+    Type: String
+    Default: bumblee-nick.net
+
+
+Resources:
+  LambdaCreateUserFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: user-item-lambda-bucket
+        S3Key: rest_create_user.py.zip
+      FunctionName:  rest_create_user
+      Handler: rest_create_user.lambda_handler
+      Runtime: python3.9
+      Timeout: 30
+      Role: !GetAtt IAMRole.Arn
+    DependsOn:
+      - DynamoDBTable
+
+  LambdaGetListUsersFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: user-item-lambda-bucket
+        S3Key: rest_get_list_users.py.zip
+      FunctionName:  rest_get_list_users
+      Handler: rest_get_list_users.lambda_handler
+      Runtime: python3.9
+      Timeout: 30
+      Role: !GetAtt IAMRole.Arn
+    DependsOn:
+      - DynamoDBTable
+
+  SNSTopicFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: sns-lambda-func
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: user-item-lambda-bucket
+        S3Key: 3_sns.py.zip
+      Handler: 3_sns.lambda_handler
+#        S3Key: sns_sent_topic.py.zip
+#      Handler: sns_sent_topic.lambda_handler
+      Runtime: python3.9
+      Timeout: 30
+    DependsOn:
+      - MySubscription
+
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName:
+        Ref: DynamoDBTableName
+      AttributeDefinitions:
+        - AttributeName: ID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ID
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
+    DependsOn:
+      - IAMRole
+
+  APIGatewayRestAPI:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: users-api
+    DependsOn:
+      - LambdaCreateUserFunction
+      - LambdaGetListUsersFunction
+#      - LambdaFunction
+#      - LambdaFunction
+#      - LambdaFunction
+
+  APIGatewayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref APIGatewayRestAPI
+      ParentId: !GetAtt APIGatewayRestAPI.RootResourceId
+      PathPart: !Ref DynamoDBTableName
+    DependsOn:
+      - APIGatewayRestAPI
+
+  APIGatewayResourceID:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref APIGatewayRestAPI
+      ParentId: !GetAtt APIGatewayResource.ResourceId
+      PathPart: "{id}"
+    DependsOn:
+      - APIGatewayRestAPI
+
+  APIGatewaySNSResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref APIGatewayRestAPI
+      ParentId: !GetAtt APIGatewayRestAPI.RootResourceId
+      PathPart: "sent_user_sns"
+    DependsOn:
+      - APIGatewayRestAPI
+
+  APIGatewaySNSResourceID:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref APIGatewayRestAPI
+      ParentId: !GetAtt APIGatewaySNSResource.ResourceId
+      PathPart: "{id}"
+    DependsOn:
+      - APIGatewayRestAPI
+
+  MyTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "SNS-users-topic"  # warn: без пробелов
+    DependsOn:
+      - IAMRole
+
+  MySubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: email
+      TopicArn: !Ref MyTopic
+      Endpoint: "nickolay.varvonets@gmail.com"
+      #      Endpoint: !Join [ ",", [ "nickolay.varvonets@gmail.com", "avarvonets@gmail.com"] ]  # может принять только тип str
+    DependsOn:
+      - MyTopic
+
+  GetListUserMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      RestApiId: !Ref APIGatewayRestAPI
+      ResourceId: !Ref APIGatewayResource
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
+          - LambdaFuncNameArn: !GetAtt LambdaGetListUsersFunction.Arn
+
+  CreateNewUserMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: POST
+      RestApiId: !Ref APIGatewayRestAPI
+      ResourceId: !Ref APIGatewayResource
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
+          - LambdaFuncNameArn: !GetAtt LambdaCreateUserFunction.Arn
+
+#  GetUserMethod:
+#    Type: AWS::ApiGateway::Method
+#    Properties:
+#      HttpMethod: GET
+#      RestApiId: !Ref APIGatewayRestAPI
+#      ResourceId: !Ref APIGatewayResourceID
+#      AuthorizationType: NONE
+#      RequestParameters:
+#        method.request.path.id: true
+#      Integration:
+#        IntegrationHttpMethod: POST
+#        Type: AWS_PROXY
+#        Uri: !Sub
+#          - >-
+#            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
+#          - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
+
+
+#  UpdateUserMethod:
+#    Type: AWS::ApiGateway::Method
+#    Properties:
+#      HttpMethod: PUT
+#      RestApiId: !Ref APIGatewayRestAPI
+#      ResourceId: !Ref APIGatewayResourceID
+#      AuthorizationType: NONE
+#      RequestParameters:
+#        method.request.path.id: true
+#      Integration:
+#        IntegrationHttpMethod: POST
+#        Type: AWS_PROXY
+#        Uri: !Sub
+#          - >-
+#            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
+#          - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
+#
+#  DeleteUserMethod:
+#    Type: AWS::ApiGateway::Method
+#    Properties:
+#      HttpMethod: DELETE
+#      RestApiId: !Ref APIGatewayRestAPI
+#      ResourceId: !Ref APIGatewayResourceID
+#      AuthorizationType: NONE
+#      RequestParameters:
+#        method.request.path.id: true
+#      Integration:
+#        IntegrationHttpMethod: POST
+#        Type: AWS_PROXY
+#        Uri: !Sub
+#          - >-
+#            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFuncNameArn}/invocations
+#          - LambdaFuncNameArn: !GetAtt LambdaFunction.Arn
+
+  SNSUserMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      RestApiId: !Ref APIGatewayRestAPI
+      ResourceId: !Ref APIGatewaySNSResourceID
+      AuthorizationType: NONE
+      RequestParameters:
+        method.request.path.id: true
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SNSTopicFuncNameArn}/invocations
+          - SNSTopicFuncNameArn: !GetAtt SNSTopicFunction.Arn
+
+  MyLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt SNSTopicFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${APIGatewayRestAPI}/*/GET/sent_user_sns/{id}
+
+    DependsOn:
+      - SNSTopicFunction
+
+  APIGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref APIGatewayRestAPI
+      StageName: !Ref EnvironmentName
+    DependsOn:
+      - GetListUserMethod
+#      - GetUserMethod
+      - CreateNewUserMethod
+#      - UpdateUserMethod
+#      - DeleteUserMethod
+#      - SNSUserMethod
+
+  LambdaCreateUserPermission:
+    # FunctionName: !GetAtt LambdaFunction.Arn  # для одной лямби функции - работает
+    # FunctionName: !Join [ ':', [ !GetAtt LambdaCreateUserFunction.Arn,  !GetAtt LambdaGetListUsersFunction.Arn ]]  # если больше 2х дает ошибку, но можно разрешить доступ ко всем функциям
+    # FunctionName: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:* # тоже не работает..
+    # т.к. як неможна вказати лист имен, а только одно имя для каждого пемисиона
+    # ПОЄТОМУ придется для каждой функции прописать свой уникальний пермисион
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt LambdaCreateUserFunction.Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: apigateway.amazonaws.com
+    DependsOn:
+      - APIGatewayDeployment
+
+  LambdaGetListUsersPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt LambdaGetListUsersFunction.Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: apigateway.amazonaws.com
+    DependsOn:
+      - APIGatewayDeployment
+
+  IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: Policy_api-crud-sns-db
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'dynamodb:BatchGetItem'
+                  - 'dynamodb:BatchWriteItem'
+                  - 'dynamodb:TagResource'
+                  - 'dynamodb:UntagResource'
+                  - 'dynamodb:PutItem'
+                  - 'dynamodb:DeleteItem'
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:Scan'
+                  - 'dynamodb:Query'
+                  - 'dynamodb:UpdateItem'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogStream'
+                  - 'logs:CreateLogGroup'
+                  - 'logs:PutLogEvents'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - "sns:Publish"
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: '*'
+
+  LambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: lambda-execution-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+
+
+# --------------------------------------------------------------
+
+#  ApiGatewayDomainName:
+#    Type: AWS::ApiGateway::DomainName
+#    Properties:
+#      RegionalCertificateArn: !Ref AwsAcmCertificate
+#      DomainName: !Ref MYAPIDomainName  # bumblee-nick.net
+#      EndpointConfiguration:
+#        Types:
+#          - REGIONAL
+#      SecurityPolicy: TLS_1_2
+#    DependsOn:
+#      - AwsAcmCertificate
+#
+#  AwsAcmCertificate:
+#    Type: AWS::CertificateManager::Certificate
+#    Properties:
+#      DomainName: !Ref MYAPIDomainName # bumblee-nick.net должен бьіть по примеру через ui (без субдомена)
+#      DomainValidationOptions:
+#        - DomainName: !Ref MYAPIDomainName
+#          HostedZoneId: !Ref DNSHostedZoneId
+#      ValidationMethod: DNS  # для того типа валидациции нужно создать запись(рекорд) в route53
+#
+#  DNSRecordSetGroup:
+#    Type: AWS::Route53::RecordSet
+#    Properties:
+#      HostedZoneName: bumblee-nick.net.
+#      Name: "bumblee-nick.net."
+#      Type: A
+#      AliasTarget:
+#        HostedZoneId: !GetAtt ApiGatewayDomainName.RegionalHostedZoneId
+#        DNSName: !GetAtt ApiGatewayDomainName.RegionalDomainName
+#    DependsOn:
+#      - ApiGatewayDomainName
+#
+#
+#  ApiGatewayBasePathMapping:
+#    Type: AWS::ApiGateway::BasePathMapping
+#    Properties:
+#      DomainName: !Ref MYAPIDomainName
+#      RestApiId: !Ref APIGatewayRestAPI
+#      Stage: !Ref EnvironmentName
+#    DependsOn:
+#      - ApiGatewayDomainName
+#
+#Outputs:
+#  AwsAcmCertificate:
+#    Value: !Ref AwsAcmCertificate
+#    Description: ahaha AwsAcmCertificate
+#  ApiGatewayDomainName:
+#    Value: !GetAtt ApiGatewayDomainName.RegionalDomainName
+#    Description: The domain name for REGIONAL the API Gateway
+#  ApiGatewayDomainHostedZoneId:
+#    Value: !GetAtt ApiGatewayDomainName.RegionalHostedZoneId
+#    Description: The domain HostedZoneId for REGIONAL the API Gateway
