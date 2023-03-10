@@ -40,7 +40,7 @@ def lambda_handler(event, context):
         key = {"ID": user_id}
         raw_user = table.get_item(Key=key)
         item_without_decimals = remove_decimal(raw_user["Item"])
-        response['item_data'] = item_without_decimals
+        response['item'] = item_without_decimals
 
         sns = session.resource('sns')
         # Выбираем тему SNS по ее имени, где :140294923654: -  (AWS account ID), а имя топика даешь при создании стека в cloudfrom
@@ -49,7 +49,7 @@ def lambda_handler(event, context):
         # Опубликовываем сообщение в SNS топик
         topic.publish(Message=json.dumps(item_without_decimals))
 
-        response['status'] = "successfully published"
+        response['status'] = "Topic successfully published"
 
         return {
             'statusCode': 200,

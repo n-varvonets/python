@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-# sam deploy --template-file CloudFormation-StackApiLambdaDB.yml --stack-name crud-rest-sns-dynanamodb-stack --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
+# sam deploy --template-file CF-dynamodb-rest-crudl-sns-dns-ssl-stack.yml --stack-name crud-rest-sns-dynanamodb-stack --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
 
 Parameters:
   DynamoDBTableName:
@@ -423,56 +423,56 @@ Resources:
 
 # --------------------------------------------------------------
 
-#  ApiGatewayDomainName:
-#    Type: AWS::ApiGateway::DomainName
-#    Properties:
-#      RegionalCertificateArn: !Ref AwsAcmCertificate
-#      DomainName: !Ref MYAPIDomainName  # bumblee-nick.net
-#      EndpointConfiguration:
-#        Types:
-#          - REGIONAL
-#      SecurityPolicy: TLS_1_2
-#    DependsOn:
-#      - AwsAcmCertificate
-#
-#  AwsAcmCertificate:
-#    Type: AWS::CertificateManager::Certificate
-#    Properties:
-#      DomainName: !Ref MYAPIDomainName # bumblee-nick.net должен бьіть по примеру через ui (без субдомена)
-#      DomainValidationOptions:
-#        - DomainName: !Ref MYAPIDomainName
-#          HostedZoneId: !Ref DNSHostedZoneId
-#      ValidationMethod: DNS  # для того типа валидациции нужно создать запись(рекорд) в route53
-#
-#  DNSRecordSetGroup:
-#    Type: AWS::Route53::RecordSet
-#    Properties:
-#      HostedZoneName: bumblee-nick.net.
-#      Name: "bumblee-nick.net."
-#      Type: A
-#      AliasTarget:
-#        HostedZoneId: !GetAtt ApiGatewayDomainName.RegionalHostedZoneId
-#        DNSName: !GetAtt ApiGatewayDomainName.RegionalDomainName
-#    DependsOn:
-#      - ApiGatewayDomainName
-#
-#
-#  ApiGatewayBasePathMapping:
-#    Type: AWS::ApiGateway::BasePathMapping
-#    Properties:
-#      DomainName: !Ref MYAPIDomainName
-#      RestApiId: !Ref APIGatewayRestAPI
+  ApiGatewayDomainName:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      RegionalCertificateArn: !Ref AwsAcmCertificate
+      DomainName: !Ref MYAPIDomainName  # bumblee-nick.net
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      SecurityPolicy: TLS_1_2
+    DependsOn:
+      - AwsAcmCertificate
+
+  AwsAcmCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref MYAPIDomainName # bumblee-nick.net должен бьіть по примеру через ui (без субдомена)
+      DomainValidationOptions:
+        - DomainName: !Ref MYAPIDomainName
+          HostedZoneId: !Ref DNSHostedZoneId
+      ValidationMethod: DNS  # для того типа валидациции нужно создать запись(рекорд) в route53
+
+  DNSRecordSetGroup:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: bumblee-nick.net.
+      Name: "bumblee-nick.net."
+      Type: A
+      AliasTarget:
+        HostedZoneId: !GetAtt ApiGatewayDomainName.RegionalHostedZoneId
+        DNSName: !GetAtt ApiGatewayDomainName.RegionalDomainName
+    DependsOn:
+      - ApiGatewayDomainName
+
+  ApiGatewayBasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref MYAPIDomainName
+      RestApiId: !Ref APIGatewayRestAPI
 #      Stage: !Ref EnvironmentName
-#    DependsOn:
-#      - ApiGatewayDomainName
-#
-#Outputs:
-#  AwsAcmCertificate:
-#    Value: !Ref AwsAcmCertificate
-#    Description: ahaha AwsAcmCertificate
-#  ApiGatewayDomainName:
-#    Value: !GetAtt ApiGatewayDomainName.RegionalDomainName
-#    Description: The domain name for REGIONAL the API Gateway
-#  ApiGatewayDomainHostedZoneId:
-#    Value: !GetAtt ApiGatewayDomainName.RegionalHostedZoneId
-#    Description: The domain HostedZoneId for REGIONAL the API Gateway
+      Stage: prod
+    DependsOn:
+      - ApiGatewayDomainName
+
+Outputs:
+  AwsAcmCertificate:
+    Value: !Ref AwsAcmCertificate
+    Description: here AwsAcmCertificate
+  ApiGatewayDomainName:
+    Value: !GetAtt ApiGatewayDomainName.RegionalDomainName
+    Description: The domain name for REGIONAL the API Gateway
+  ApiGatewayDomainHostedZoneId:
+    Value: !GetAtt ApiGatewayDomainName.RegionalHostedZoneId
+    Description: The domain HostedZoneId for REGIONAL the API Gateway
