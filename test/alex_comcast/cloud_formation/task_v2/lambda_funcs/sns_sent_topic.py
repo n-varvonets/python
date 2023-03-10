@@ -25,7 +25,7 @@ def remove_decimal(obj):
 
 
 def lambda_handler(event, context):
-    print('event=', event)
+    response = {}
     try:
 
         # Create a session with the IAM user credentials and connect to our table in dynamoDB
@@ -39,9 +39,8 @@ def lambda_handler(event, context):
         user_id = event['pathParameters']['id']
         key = {"ID": user_id}
         raw_user = table.get_item(Key=key)
-        print('raw_user=', raw_user)
         item_without_decimals = remove_decimal(raw_user["Item"])
-        print('item_without_decimals=', item_without_decimals)
+        response['item_data'] = item_without_decimals
 
         sns = session.resource('sns')
         # Выбираем тему SNS по ее имени, где :140294923654: -  (AWS account ID), а имя топика даешь при создании стека в cloudfrom
@@ -49,9 +48,12 @@ def lambda_handler(event, context):
 
         # Опубликовываем сообщение в SNS топик
         topic.publish(Message=json.dumps(item_without_decimals))
+
+        response['status'] = "successfully published"
+
         return {
             'statusCode': 200,
-            'body': json.dumps("Topic was successfully published")
+            'body': json.dumps(response)
         }
 
     except Exception as err:
@@ -60,18 +62,3 @@ def lambda_handler(event, context):
             'statusCode': 404,
             'body': json.dumps("Item Not Found in DB")
         }
-
-
-# ВАЖНО: не забудь настроить права для user-a IAM на топик в policy
-# {
-#     "Version": "2012-10-17",
-#     "Statement": [
-#         {
-#             "Effect": "Allow",
-#             "Action": [
-#                 "sns:Publish"
-#             ],
-#             "Resource": "arn:aws:sns:us-east-1:123456789012:MyTopic"
-#         }
-#     ]
-# }
